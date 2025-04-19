@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param
 
 interface FriendshipRepository : JpaRepository<FriendshipEntity, Int> {
     @Query("""
-        SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END
+        SELECT COUNT(f) > 0 
         FROM FriendshipEntity f
         WHERE (f.user1 = :user1 AND f.user2 = :user2)
         OR (f.user1 = :user2 AND f.user2 = :user1)
@@ -18,19 +18,23 @@ interface FriendshipRepository : JpaRepository<FriendshipEntity, Int> {
     ): Boolean
 
     @Query("""
-        SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END 
+        SELECT COUNT(f) > 0 
         FROM FriendshipEntity f
-        WHERE (f.user1.username = :user1 AND f.user2.username = :user2)
-        OR (f.user1.username = :user2 AND f.user2.username = :user1)
+        WHERE (f.user1.username = :username1 AND f.user2.username = :username2)
+        OR (f.user1.username = :username2 AND f.user2.username = :username1)
     """) fun areFriends(
         @Param("user1") username1: String,
         @Param("user2") username2: String
     ): Boolean
 
     @Query("""
-        SELECT CASE WHEN f.user1 = :user THEN f.user2 ELSE f.user1 END
+        SELECT f.user1
         FROM FriendshipEntity f
-        WHERE f.user1 = :user OR f.user2 = :user
+        WHERE f.user2 = :user
+        UNION
+        SELECT f.user2
+        FROM FriendshipEntity f
+        WHERE f.user1 = :user
     """) fun findUserFriends(
         @Param("user") user: UserEntity
     ): List<UserEntity>
