@@ -29,7 +29,7 @@ public class UserSession implements Principal {
     byte[] skin; // 16x16 png head
 
     @NotNull
-    WebSocketSession session;
+    WebSocketSession wsSession;
 
     @Override
     public String getName() {

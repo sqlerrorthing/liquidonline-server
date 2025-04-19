@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.socket.WebSocketSession
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CopyOnWriteArraySet
 
 @Service
@@ -22,7 +23,7 @@ class WebSocketSessionStorageService(
     private val friendshipService: FriendshipService
 ) {
     private val sessions: MutableSet<WebSocketSession> = CopyOnWriteArraySet()
-    private val authoredSessions: MutableMap<WebSocketSession, UserSession> = ConcurrentHashMap()
+    private val authoredSessions: MutableList<UserSession> = CopyOnWriteArrayList()
 
     val authoredSessionsIterator get() = authoredSessions.iterator()
 
@@ -31,7 +32,7 @@ class WebSocketSessionStorageService(
             return
         }
 
-        authoredSessions[session]?.let {
+        authoredSessions.find { it.wsSession == session }?.let {
             if (packet !is C2SLogin) {
                 authoredSessionPacket(session, it, packet)
                 return
@@ -44,7 +45,7 @@ class WebSocketSessionStorageService(
     }
 
     fun authSessionPacket(wsSession: WebSocketSession, session: UserSession) {
-        authoredSessions[wsSession] = session
+        authoredSessions.add(session)
         val selfFriendDto = session.toFriendDto()
 
         val joinPacket = S2CFriendJoined
@@ -53,14 +54,14 @@ class WebSocketSessionStorageService(
             .build()
 
         val friendsSessions: List<WebSocketSession> = friendshipService.findUserFriends(session.user).mapNotNull { friend ->
-            findUserSession(friend)?.session
+            findUserSession(friend)?.wsSession
         }
 
         friendsSessions.forEach { it.sendMessage(joinPacket) }
     }
 
     fun findUserSession(entity: UserEntity): UserSession? {
-        return authoredSessions.values.find { it.user == entity }
+        return authoredSessions.find { it.user == entity }
     }
 
     fun authoredSessionPacket(wsSession: WebSocketSession, session: UserSession, packet: Packet) {
@@ -76,8 +77,8 @@ class WebSocketSessionStorageService(
     fun removeSession(session: WebSocketSession) {
         sessions.remove(session)
 
-        authoredSessions[session]?.let { userSession ->
-            authoredSessions.remove(session)
+        authoredSessions.find { it.wsSession == session }?.let { userSession ->
+            authoredSessions.remove(userSession)
 
             userSession.user.lastLogin = Instant.now()
             userService.save(userSession.user)
@@ -90,7 +91,7 @@ class WebSocketSessionStorageService(
                 .build()
 
             val friendsSessions: List<WebSocketSession> = friendshipService.findUserFriends(userSession.user).mapNotNull { friend ->
-                findUserSession(friend)?.session
+                findUserSession(friend)?.wsSession
             }
 
             friendsSessions.forEach { it.sendMessage(leavePacket) }

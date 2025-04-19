@@ -18,12 +18,12 @@ class FriendsListeners(
 ) {
     @Scheduled(fixedRate = 10000)
     fun syncFriends() {
-        for ((connection, session) in webSocketSessionStorageService.authoredSessionsIterator) {
+        for (session in webSocketSessionStorageService.authoredSessionsIterator) {
             val friends: List<FriendDto> = friendshipService.findUserFriends(session.user).map { friend ->
                 webSocketSessionStorageService.findUserSession(friend)?.toFriendDto() ?: friend.toFriendDto()
             }
 
-            connection.sendMessage(
+            session.wsSession.sendMessage(
                 S2CFriends
                     .builder()
                     .friends(friends)
