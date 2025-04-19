@@ -17,9 +17,9 @@ class SkinValidator {
      * Takes as input a base64 string with a png of a head (16x16) from a skin.
      * Returns null if the skin does not meet the requirements
      */
-    fun parseHead(skin: String): ByteArray? {
+    fun validateHead(head: String): ByteArray? {
         return runCatching {
-            val imageBytes = Base64.getDecoder().decode(skin)
+            val imageBytes = Base64.getDecoder().decode(head)
 
             if (!imageBytes.take(8).toByteArray().contentEquals(PNG_SIGNATURE)) {
                 return null

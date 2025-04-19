@@ -8,9 +8,7 @@ import `fun`.sqlerrorthing.liquidonline.packets.s2c.login.S2CConnected
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.login.S2CDisconnected
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.utils.SkinValidator
-import `fun`.sqlerrorthing.liquidonline.ws.SessionPacketEvent
 import `fun`.sqlerrorthing.liquidonline.ws.listener.PacketListenerRegistrar
-import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.web.socket.CloseStatus
@@ -62,7 +60,7 @@ class WebSocketSessionStorageService(
                 return
             }
 
-            val head = skinValidator.parseHead(packet.skin) ?: run {
+            val head = skinValidator.validateHead(packet.skin) ?: run {
                 session.sendMessage(
                     S2CDisconnected
                         .builder()
