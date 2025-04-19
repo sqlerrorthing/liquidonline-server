@@ -21,10 +21,11 @@ import java.util.concurrent.CopyOnWriteArraySet
 class WebSocketSessionStorageService(
     private val userService: UserService,
     private val packetListenerRegistrar: PacketListenerRegistrar,
-    private val friendshipService: FriendshipService
 ) {
     private val sessions: MutableSet<WebSocketSession> = CopyOnWriteArraySet()
     private val authoredSessions: MutableMap<WebSocketSession, UserSession> = ConcurrentHashMap()
+
+    val authoredSessionsIterator get() = authoredSessions.iterator()
 
     fun sessionPacket(session: WebSocketSession, packet: Packet) {
         if (!sessions.contains(session)) {
@@ -69,22 +70,6 @@ class WebSocketSessionStorageService(
 
             userSession.user.lastLogin = Instant.now()
             userService.save(userSession.user)
-        }
-    }
-
-    @Scheduled(fixedRate = 1000)
-    fun sendFriends() {
-        for ((connection, session) in authoredSessions) {
-            val friends: List<FriendDto> = friendshipService.findUserFriends(session.user).map { friend ->
-                findUserSession(friend)?.toFriendDto() ?: friend.toFriendDto()
-            }
-
-            connection.sendMessage(
-                S2CFriends
-                    .builder()
-                    .friends(friends)
-                    .build()
-            )
         }
     }
 }

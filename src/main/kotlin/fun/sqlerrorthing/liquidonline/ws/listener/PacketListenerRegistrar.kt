@@ -1,8 +1,10 @@
 package `fun`.sqlerrorthing.liquidonline.ws.listener
 
 import `fun`.sqlerrorthing.liquidonline.packets.Packet
+import `fun`.sqlerrorthing.liquidonline.services.WebSocketSessionStorageService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import jakarta.annotation.PostConstruct
+import org.springframework.beans.factory.SmartInitializingSingleton
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Component
@@ -15,12 +17,11 @@ import kotlin.reflect.full.isSubclassOf
 @Component
 class PacketListenerRegistrar(
     private val applicationContext: ApplicationContext
-) : BeanPostProcessor {
+) : SmartInitializingSingleton {
     private val listeners = mutableMapOf<KClass<out Packet>, ListenerMethod>()
 
     @Suppress("UNCHECKED_CAST")
-    @PostConstruct
-    fun init() {
+    override fun afterSingletonsInstantiated() {
         val beans = applicationContext.getBeansWithAnnotation(WebSocketMessageListener::class.java)
 
         beans.values.forEach { bean ->
