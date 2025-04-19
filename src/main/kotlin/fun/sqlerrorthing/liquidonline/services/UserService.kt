@@ -11,4 +11,8 @@ class UserService(
     fun findUserByToken(token: String): UserEntity? {
         return repository.findByToken(token)
     }
+
+    fun save(user: UserEntity) {
+        repository.save(user)
+    }
 }
