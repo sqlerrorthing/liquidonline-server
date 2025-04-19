@@ -1,6 +1,5 @@
 package `fun`.sqlerrorthing.liquidonline.ws.listener.listeners
 
-import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.update.C2SUpdateMinecraftUsername
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.update.C2SUpdatePlayingServer
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.update.C2SUpdateSkin
