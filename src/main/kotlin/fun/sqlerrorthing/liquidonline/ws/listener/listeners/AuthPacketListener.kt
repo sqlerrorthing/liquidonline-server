@@ -59,6 +59,7 @@ class AuthPacketListener(
             .minecraftUsername(packet.minecraftUsername)
             .server(packet.server)
             .skin(head)
+            .session(session)
             .build()
 
         session.attributes["user"] = userSession

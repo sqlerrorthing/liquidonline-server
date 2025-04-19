@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.security.Principal;
 
@@ -26,6 +27,9 @@ public class UserSession implements Principal {
 
     @NotNull
     byte[] skin; // 16x16 png head
+
+    @NotNull
+    WebSocketSession session;
 
     @Override
     public String getName() {
