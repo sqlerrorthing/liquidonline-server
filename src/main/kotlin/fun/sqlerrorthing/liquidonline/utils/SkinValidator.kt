@@ -21,7 +21,7 @@ class SkinValidator {
         return runCatching {
             val imageBytes = Base64.getDecoder().decode(skin)
 
-            if (!imageBytes.take(0).toByteArray().contentEquals(PNG_SIGNATURE)) {
+            if (!imageBytes.take(8).toByteArray().contentEquals(PNG_SIGNATURE)) {
                 return null
             }
 
