@@ -7,6 +7,8 @@ import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.login.C2SLogin
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.login.S2CConnected
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.login.S2CDisconnected
+import `fun`.sqlerrorthing.liquidonline.session.UserSession
+import `fun`.sqlerrorthing.liquidonline.utils.SkinValidator
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.web.socket.CloseStatus
@@ -18,17 +20,20 @@ import java.util.concurrent.CopyOnWriteArraySet
 @Service
 class WebSocketSessionStorageService(
     private val userService: UserService,
+    private val skinValidator: SkinValidator,
 ) {
     private val sessions: MutableSet<WebSocketSession> = CopyOnWriteArraySet()
-    private val authoredSessions: MutableMap<WebSocketSession, UserEntity> = ConcurrentHashMap()
+    private val authoredSessions: MutableMap<WebSocketSession, UserSession> = ConcurrentHashMap()
 
     fun sessionPacket(session: WebSocketSession, packet: Packet) {
         if (!sessions.contains(session)) {
             return
         }
 
-        if (packet !is C2SLogin && authoredSessions.contains(session)) {
-            authoredSessionPacket(session, packet)
+        if (authoredSessions.contains(session)) {
+            if (packet !is C2SLogin) {
+                authoredSessionPacket(session, packet)
+            }
         } else if (packet is C2SLogin) {
             val user = userService.findUserByToken(packet.token) ?: run {
                 session.sendMessage(
@@ -41,7 +46,7 @@ class WebSocketSessionStorageService(
                 return
             }
 
-            if (authoredSessions.containsValue(user)) {
+            if (authoredSessions.values.find { it.user == user } != null) {
                 session.sendMessage(
                     S2CDisconnected
                         .builder()
@@ -52,8 +57,27 @@ class WebSocketSessionStorageService(
                 return
             }
 
-            authoredSessions[session] = user
-            session.attributes["user"] = user
+            val head = skinValidator.parseHead(packet.skin) ?: run {
+                session.sendMessage(
+                    S2CDisconnected
+                        .builder()
+                        .reason(S2CDisconnected.Reason.INVALID_INITIAL_PLAYER_DATA)
+                        .build()
+                )
+                session.close(CloseStatus.NORMAL.withReason("Invalid head"))
+                return
+            }
+
+            val userSession = UserSession
+                .builder()
+                .user(user)
+                .minecraftUsername(packet.minecraftUsername)
+                .server(packet.server)
+                .skin(head)
+                .build()
+
+            authoredSessions[session] = userSession
+            session.attributes["user"] = userSession
 
             session.sendMessage(
                 S2CConnected
