@@ -9,6 +9,7 @@ import `fun`.sqlerrorthing.liquidonline.packets.c2s.friends.C2SStopBeingFriends
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriendRequestResult
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriendShipBroken
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriends
+import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CRespondFriendRequestResult
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CStopBeingFriendsResult
 import `fun`.sqlerrorthing.liquidonline.services.FriendshipRequestService
 import `fun`.sqlerrorthing.liquidonline.services.FriendshipService
@@ -114,10 +115,13 @@ class FriendsListeners(
     }
 
     @PacketMessageListener
-    private fun respondFriendRequest(userSession: UserSession, packet: C2SRespondFriendRequest) {
+    private fun respondFriendRequest(userSession: UserSession, packet: C2SRespondFriendRequest): S2CRespondFriendRequestResult {
         val request = friendshipRequestService.findFriendRequest(packet.requestId)
             ?.takeIf { it.receiver == userSession.user }
-            ?: return
+            ?: return S2CRespondFriendRequestResult
+                .builder()
+                .status(S2CRespondFriendRequestResult.Status.REQUEST_NOT_FOUND)
+                .build()
 
         val senderSession = webSocketSessionStorageService.findUserSession(request.sender)
 
@@ -125,6 +129,15 @@ class FriendsListeners(
             C2SRespondFriendRequest.Status.ACCEPTED -> friendshipRequestService.acceptFriendRequest(request, senderSession, userSession)
             C2SRespondFriendRequest.Status.REJECT -> friendshipRequestService.rejectFriendRequest(request, senderSession)
         }
+
+        return S2CRespondFriendRequestResult
+            .builder()
+            .status(S2CRespondFriendRequestResult.Status.SUCCESS).apply {
+                if (packet.status == C2SRespondFriendRequest.Status.ACCEPTED) {
+                    friend(senderSession?.toFriendDto() ?: request.sender.toFriendDto())
+                }
+            }
+            .build()
     }
 
     @Scheduled(fixedRate = 10000)
