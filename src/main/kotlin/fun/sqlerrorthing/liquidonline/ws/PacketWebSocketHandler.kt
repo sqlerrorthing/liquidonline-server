@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import `fun`.sqlerrorthing.liquidonline.extensions.sendMessage
 import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.packets.Packets
+import `fun`.sqlerrorthing.liquidonline.packets.c2s.login.C2SLogin
+import `fun`.sqlerrorthing.liquidonline.packets.s2c.login.S2CDisconnected
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.login.S2CValidationFailure
 import jakarta.validation.ConstraintViolationException
 import jakarta.validation.Validator
@@ -36,9 +38,23 @@ abstract class PacketWebSocketHandler(
                         )
                         .build()
                 )
+
+                if (deserialized is C2SLogin) {
+                    session.sendMessage(
+                        S2CDisconnected
+                            .builder()
+                            .reason(S2CDisconnected.Reason.INVALID_INITIAL_PLAYER_DATA)
+                            .build()
+                    )
+                    session.close()
+                }
+
+                return
             }
 
             handlePacket(session, deserialized)
+        }.onFailure {
+            it.printStackTrace()
         }
     }
 

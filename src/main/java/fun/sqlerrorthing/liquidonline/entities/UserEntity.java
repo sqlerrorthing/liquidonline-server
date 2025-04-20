@@ -8,6 +8,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.Principal;
+import java.time.Instant;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -33,6 +35,14 @@ public class UserEntity implements Principal {
     @Column(nullable = false)
     @Builder.Default
     String token = RandomStringUtils.secure().next(32, true, true);
+
+    @Column(nullable = false)
+    @Builder.Default
+    Instant lastLogin = Instant.now();
+
+    @Column(nullable = false)
+    @Builder.Default
+    Instant created = Instant.now();
 
     @Override
     public String getName() {
