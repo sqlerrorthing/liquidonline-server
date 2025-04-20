@@ -18,14 +18,14 @@ interface FriendshipRepository : JpaRepository<FriendshipEntity, Int> {
     ): Boolean
 
     @Query("""
-        SELECT COUNT(f) > 0 
+        SELECT f
         FROM FriendshipEntity f
-        WHERE (f.user1.username = :username1 AND f.user2.username = :username2)
-        OR (f.user1.username = :username2 AND f.user2.username = :username1)
-    """) fun areFriends(
-        @Param("user1") username1: String,
-        @Param("user2") username2: String
-    ): Boolean
+        WHERE (f.user1 = :user1 AND f.user2 = :user2)
+        OR (f.user1 = :user2 AND f.user2 = :user1)
+    """) fun findFriendship(
+        @Param("user1") user1: UserEntity,
+        @Param("user2") user2: UserEntity
+    ): FriendshipEntity?
 
     @Query("""
         SELECT f.user1

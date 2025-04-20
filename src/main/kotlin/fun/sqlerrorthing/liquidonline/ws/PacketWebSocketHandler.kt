@@ -53,6 +53,8 @@ abstract class PacketWebSocketHandler(
             }
 
             handlePacket(session, deserialized)
+        }.onFailure {
+            it.printStackTrace()
         }
     }
 
