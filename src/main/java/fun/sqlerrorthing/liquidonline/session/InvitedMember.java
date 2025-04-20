@@ -4,7 +4,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -12,21 +11,13 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Party {
+public class InvitedMember {
     @NotNull
     UUID uuid;
 
     @NotNull
-    String name;
-
-    boolean isPublic;
+    UserSession invited;
 
     @NotNull
-    PartyMember owner;
-
-    @NotNull
-    List<PartyMember> members;
-
-    @NotNull
-    List<InvitedMember> invitedMembers;
+    UserSession sender;
 }

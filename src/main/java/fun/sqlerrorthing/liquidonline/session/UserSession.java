@@ -31,6 +31,9 @@ public class UserSession implements Principal {
     @NotNull
     WebSocketSession wsSession;
 
+    @Nullable
+    Party activeParty;
+
     @Override
     public String getName() {
         return user.getName();

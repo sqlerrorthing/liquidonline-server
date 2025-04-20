@@ -6,6 +6,7 @@ import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
 import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.services.FriendshipService
 import `fun`.sqlerrorthing.liquidonline.services.SessionStorageService
+import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.utils.SpringContextHolder
 
@@ -23,6 +24,12 @@ fun UserSession.sendPacketToFriends(builder: (friend: UserSession) -> Packet) {
         .forEach { friend ->
             friend.sendMessage(builder(friend))
         }
+}
+
+fun UserSession.sendPacketToPartyMembers(builder: (member: PartyMember) -> Packet) {
+    activeParty?.members?.forEach { member ->
+        member.sendMessage(builder(member))
+    }
 }
 
 fun UserSession.sendMessage(packet: Packet) {
