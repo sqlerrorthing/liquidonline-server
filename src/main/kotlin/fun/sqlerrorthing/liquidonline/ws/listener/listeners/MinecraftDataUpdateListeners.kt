@@ -20,6 +20,10 @@ class MinecraftDataUpdateListeners(
 ) {
     @PacketMessageListener
     fun handleMinecraftUsernameUpdateEvent(session: UserSession, packet: C2SUpdateMinecraftUsername) {
+        if (session.minecraftUsername == packet.username) {
+            return
+        }
+
         session.minecraftUsername = packet.username
 
         val updatePacket = S2CFriendStatusUpdate
@@ -33,6 +37,10 @@ class MinecraftDataUpdateListeners(
 
     @PacketMessageListener
     fun handleMinecraftPlayingServerUpdateEvent(session: UserSession, packet: C2SUpdatePlayingServer) {
+        if (session.server == packet.server) {
+            return
+        }
+
         session.server = packet.server
 
         val updatePacket = S2CFriendStatusUpdate
@@ -47,6 +55,10 @@ class MinecraftDataUpdateListeners(
     @PacketMessageListener
     fun handleHeadSkinUpdateEvent(session: UserSession, packet: C2SUpdateSkin) {
         skinValidator.validateHead(packet.skin)?.let {
+            if (session.skin.contentEquals(it)) {
+                return
+            }
+
             session.skin = it
 
             val updatePacket = S2CFriendStatusUpdate
