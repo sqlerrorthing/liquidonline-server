@@ -17,7 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CopyOnWriteArraySet
 
 @Service
-class WebSocketSessionStorageService(
+class SessionStorageService(
     private val userService: UserService,
     private val packetListenerRegistrar: PacketListenerRegistrar,
     private val friendshipService: FriendshipService,

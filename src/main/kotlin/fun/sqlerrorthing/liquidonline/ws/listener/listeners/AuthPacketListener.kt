@@ -6,7 +6,7 @@ import `fun`.sqlerrorthing.liquidonline.packets.c2s.login.C2SLogin
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.login.S2CConnected
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.login.S2CDisconnected
 import `fun`.sqlerrorthing.liquidonline.services.UserService
-import `fun`.sqlerrorthing.liquidonline.services.WebSocketSessionStorageService
+import `fun`.sqlerrorthing.liquidonline.services.SessionStorageService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.utils.SkinValidator
 import org.springframework.stereotype.Component
@@ -16,7 +16,7 @@ import org.springframework.web.socket.WebSocketSession
 @Component
 class AuthPacketListener(
     private val userService: UserService,
-    private val webSocketSessionStorageService: WebSocketSessionStorageService,
+    private val sessionStorageService: SessionStorageService,
     private val skinValidator: SkinValidator
 ) {
     fun authConnection(session: WebSocketSession, packet: C2SLogin): UserSession? {
@@ -31,7 +31,7 @@ class AuthPacketListener(
             return null
         }
 
-        if (webSocketSessionStorageService.findUserSession(user) != null) {
+        if (sessionStorageService.findUserSession(user) != null) {
             session.sendMessage(
                 S2CDisconnected
                     .builder()
