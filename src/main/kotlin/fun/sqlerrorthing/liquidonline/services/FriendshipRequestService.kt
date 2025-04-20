@@ -63,19 +63,8 @@ class FriendshipRequestService(
 
     @Transactional
     fun acceptFriendRequest(
-        request: FriendshipRequestEntity,
-        senderSession: UserSession? = null,
-        receiverSession: UserSession? = null
+        request: FriendshipRequestEntity
     ) {
-        senderSession?.sendMessage(
-            S2COutgoingFriendRequest
-                .builder()
-                .to(request.receiver.username)
-                .status(S2COutgoingFriendRequest.Status.ACCEPTED)
-                .friend(receiverSession?.toFriendDto() ?: request.receiver.toFriendDto())
-                .build()
-        )
-
         friendshipService.createFriendship(
             sender = request.sender,
             receiver = request.receiver,
@@ -86,17 +75,8 @@ class FriendshipRequestService(
 
     @Transactional
     fun rejectFriendRequest(
-        request: FriendshipRequestEntity,
-        senderSession: UserSession? = null,
+        request: FriendshipRequestEntity
     ) {
-        senderSession?.sendMessage(
-            S2COutgoingFriendRequest
-                .builder()
-                .to(request.receiver.username)
-                .status(S2COutgoingFriendRequest.Status.REJECT)
-                .build()
-        )
-
         friendshipRequestRepository.delete(request)
     }
 }

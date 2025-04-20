@@ -1,16 +1,14 @@
 package `fun`.sqlerrorthing.liquidonline.ws.listener.listeners
 
 import `fun`.sqlerrorthing.liquidonline.dto.FriendDto
+import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
 import `fun`.sqlerrorthing.liquidonline.extensions.sendMessage
 import `fun`.sqlerrorthing.liquidonline.extensions.toFriendDto
+import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.friends.C2SRespondFriendRequest
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.friends.C2SSendFriendRequest
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.friends.C2SStopBeingFriends
-import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriendRequestResult
-import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriendShipBroken
-import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriends
-import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CRespondFriendRequestResult
-import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CStopBeingFriendsResult
+import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.*
 import `fun`.sqlerrorthing.liquidonline.services.FriendshipRequestService
 import `fun`.sqlerrorthing.liquidonline.services.FriendshipService
 import `fun`.sqlerrorthing.liquidonline.services.UserService
@@ -51,15 +49,20 @@ class FriendsListeners(
                 .build()
         }
 
-        friendshipRequestService.findBySenderAndReceiver(receiver, userSession.user)?.let {
+        friendshipRequestService.findBySenderAndReceiver(receiver, userSession.user)?.let { request ->
             // The user sent a friend request
             // to someone who already has this friend request pending.
             // Then we consider that he accepted this friend request.
 
-            friendshipRequestService.acceptFriendRequest(
-                request = it,
-                senderSession = webSocketSessionStorageService.findUserSession(receiver),
-                receiverSession = userSession
+            friendshipRequestService.acceptFriendRequest(request)
+
+            webSocketSessionStorageService.findUserSession(receiver)?.sendMessage(
+                S2COutgoingFriendRequest.builder()
+                    .requestId(request.id)
+                    .to(request.receiver.username)
+                    .status(S2COutgoingFriendRequest.Status.ACCEPTED)
+                    .friend(userSession.toFriendDto())
+                    .build()
             )
 
             return S2CFriendRequestResult
@@ -115,23 +118,64 @@ class FriendsListeners(
     }
 
     @PacketMessageListener
-    private fun respondFriendRequest(userSession: UserSession, packet: C2SRespondFriendRequest): S2CRespondFriendRequestResult {
+    private fun respondFriendRequest(userSession: UserSession, packet: C2SRespondFriendRequest): Packet {
         val request = friendshipRequestService.findFriendRequest(packet.requestId)
-            ?.takeIf { it.receiver == userSession.user }
-            ?: return S2CRespondFriendRequestResult
-                .builder()
+            ?: return S2CRespondFriendRequestResult.builder()
                 .status(S2CRespondFriendRequestResult.Status.REQUEST_NOT_FOUND)
                 .build()
+
+        if (request.receiver != userSession.user) {
+            if (request.sender == userSession.user && packet.status == C2SRespondFriendRequest.Status.REJECT) {
+                friendshipRequestService.rejectFriendRequest(request)
+
+                webSocketSessionStorageService.findUserSession(request.receiver)?.sendMessage(
+                    S2CIncomingFriendRequestRejected.builder()
+                        .requestId(request.id)
+                        .from(userSession.user.username)
+                        .build()
+                )
+
+                return S2COutgoingFriendRequest.builder()
+                    .requestId(request.id)
+                    .to(request.receiver.username)
+                    .status(S2COutgoingFriendRequest.Status.REJECT)
+                    .build()
+            }
+
+            return S2CRespondFriendRequestResult.builder()
+                .status(S2CRespondFriendRequestResult.Status.REQUEST_NOT_FOUND)
+                .build()
+        }
 
         val senderSession = webSocketSessionStorageService.findUserSession(request.sender)
 
         when (packet.status) {
-            C2SRespondFriendRequest.Status.ACCEPTED -> friendshipRequestService.acceptFriendRequest(request, senderSession, userSession)
-            C2SRespondFriendRequest.Status.REJECT -> friendshipRequestService.rejectFriendRequest(request, senderSession)
+            C2SRespondFriendRequest.Status.ACCEPTED -> {
+                friendshipRequestService.acceptFriendRequest(request)
+
+                senderSession?.sendMessage(
+                    S2COutgoingFriendRequest.builder()
+                        .requestId(request.id)
+                        .to(request.receiver.username)
+                        .status(S2COutgoingFriendRequest.Status.ACCEPTED)
+                        .friend(userSession.toFriendDto())
+                        .build()
+                )
+            }
+            C2SRespondFriendRequest.Status.REJECT -> {
+                friendshipRequestService.rejectFriendRequest(request)
+
+                senderSession?.sendMessage(
+                    S2COutgoingFriendRequest.builder()
+                        .requestId(request.id)
+                        .to(request.receiver.username)
+                        .status(S2COutgoingFriendRequest.Status.REJECT)
+                        .build()
+                )
+            }
         }
 
-        return S2CRespondFriendRequestResult
-            .builder()
+        return S2CRespondFriendRequestResult.builder()
             .status(S2CRespondFriendRequestResult.Status.SUCCESS).apply {
                 if (packet.status == C2SRespondFriendRequest.Status.ACCEPTED) {
                     friend(senderSession?.toFriendDto() ?: request.sender.toFriendDto())
