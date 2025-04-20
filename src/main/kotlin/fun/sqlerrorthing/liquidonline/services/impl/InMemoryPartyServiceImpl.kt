@@ -1,4 +1,7 @@
 package `fun`.sqlerrorthing.liquidonline.services.impl
 
-interface InMemoryPartyServiceImpl {
+import org.springframework.stereotype.Service
+
+@Service
+class InMemoryPartyServiceImpl {
 }
