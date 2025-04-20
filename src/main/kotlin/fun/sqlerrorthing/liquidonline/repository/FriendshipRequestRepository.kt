@@ -7,4 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface FriendshipRequestRepository : JpaRepository<FriendshipRequestEntity, Int> {
     fun findBySenderAndReceiver(sender: UserEntity, receiver: UserEntity): FriendshipRequestEntity?
+
+    fun findAllBySender(sender: UserEntity): List<FriendshipRequestEntity>
+
+    fun findAllByReceiver(receiver: UserEntity): List<FriendshipRequestEntity>
 }
