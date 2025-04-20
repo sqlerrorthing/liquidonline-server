@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service
 class UserService(
     private val repository: UsersRepository
 ) {
+    fun findUserByUsername(username: String): UserEntity? {
+        return repository.findByUsername(username)
+    }
+
     fun findUserByToken(token: String): UserEntity? {
         return repository.findByToken(token)
     }

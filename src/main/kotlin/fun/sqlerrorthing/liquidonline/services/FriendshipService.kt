@@ -14,4 +14,8 @@ class FriendshipService(
     fun findUserFriends(user: UserEntity): List<UserEntity> {
         return friendshipRepository.findUserFriends(user)
     }
+
+    fun areFriends(user1: UserEntity, user2: UserEntity): Boolean {
+        return friendshipRepository.areFriends(user1, user2)
+    }
 }

@@ -16,17 +16,17 @@ class MinecraftDataUpdateListeners(
     private val skinValidator: SkinValidator
 ) {
     @PacketMessageListener
-    fun handleMinecraftUsernameUpdateEvent(wsSession: WebSocketSession, session: UserSession, packet: C2SUpdateMinecraftUsername) {
+    fun handleMinecraftUsernameUpdateEvent(session: UserSession, packet: C2SUpdateMinecraftUsername) {
         session.minecraftUsername = packet.username
     }
 
     @PacketMessageListener
-    fun handleMinecraftPlayingServerUpdateEvent(wsSession: WebSocketSession, session: UserSession, packet: C2SUpdatePlayingServer) {
+    fun handleMinecraftPlayingServerUpdateEvent(session: UserSession, packet: C2SUpdatePlayingServer) {
         session.server = packet.server
     }
 
     @PacketMessageListener
-    fun handleHeadSkinUpdateEvent(wsSession: WebSocketSession, session: UserSession, packet: C2SUpdateSkin) {
+    fun handleHeadSkinUpdateEvent(session: UserSession, packet: C2SUpdateSkin) {
         skinValidator.validateHead(packet.skin)?.let {
             session.skin = it
         }

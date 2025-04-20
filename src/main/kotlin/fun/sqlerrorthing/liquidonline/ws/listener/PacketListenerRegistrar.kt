@@ -1,5 +1,6 @@
 package `fun`.sqlerrorthing.liquidonline.ws.listener
 
+import `fun`.sqlerrorthing.liquidonline.extensions.sendMessage
 import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.services.WebSocketSessionStorageService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
@@ -13,6 +14,7 @@ import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.jvm.isAccessible
 
 @Component
 class PacketListenerRegistrar(
@@ -29,6 +31,7 @@ class PacketListenerRegistrar(
                 method.findAnnotation<PacketMessageListener>()?.let { _ ->
                     method.parameters.find { it.type.classifier is KClass<*> && (it.type.classifier as KClass<*>).isSubclassOf(Packet::class) }?.let { packetArg ->
                         val packetType = packetArg.type.classifier as KClass<out Packet>
+                        method.isAccessible = true
                         listeners[packetType] = ListenerMethod(bean, method, packetType)
                     }
                 }
@@ -36,9 +39,13 @@ class PacketListenerRegistrar(
         }
     }
 
-    fun dispatchPacket(session: WebSocketSession, userSession: UserSession, packet: Packet) {
+    fun dispatchPacket(userSession: UserSession, packet: Packet) {
         val listener = listeners[packet::class] ?: listeners[Packet::class] ?: return
-        listener.method.call(listener.bean, session, userSession, packet)
+        val result = listener.method.call(listener.bean, userSession, packet)
+
+        if (result is Packet) {
+            userSession.sendMessage(result)
+        }
     }
 
     private data class ListenerMethod(

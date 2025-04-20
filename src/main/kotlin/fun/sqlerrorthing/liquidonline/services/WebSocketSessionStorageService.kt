@@ -34,7 +34,7 @@ class WebSocketSessionStorageService(
 
         authoredSessions.find { it.wsSession == session }?.let {
             if (packet !is C2SLogin) {
-                authoredSessionPacket(session, it, packet)
+                authoredSessionPacket(it, packet)
                 return
             }
         }
@@ -64,9 +64,9 @@ class WebSocketSessionStorageService(
         return authoredSessions.find { it.user == entity }
     }
 
-    fun authoredSessionPacket(wsSession: WebSocketSession, session: UserSession, packet: Packet) {
+    fun authoredSessionPacket(session: UserSession, packet: Packet) {
         packetListenerRegistrar.dispatchPacket(
-            wsSession, session, packet
+            session, packet
         )
     }
 
