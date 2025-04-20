@@ -121,8 +121,11 @@ class FriendsListeners(
                 .status(S2CRespondFriendRequestResult.Status.REQUEST_NOT_FOUND)
                 .build()
 
-        if (request.receiver != userSession.user) {
-            if (request.sender == userSession.user && packet.status == C2SRespondFriendRequest.Status.REJECT) {
+        val isReceiver = request.receiver == userSession.user
+        val isSender = request.sender == userSession.user
+
+        if (!isReceiver) {
+            if (isSender && packet.status == C2SRespondFriendRequest.Status.REJECT) {
                 friendshipRequestService.rejectFriendRequest(request)
 
                 sessionStorageService.findUserSession(request.receiver)?.sendMessage(
