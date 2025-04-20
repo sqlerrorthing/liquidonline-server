@@ -139,20 +139,4 @@ class FriendsListeners(
             }
             .build()
     }
-
-    @Scheduled(fixedRate = 10000)
-    private fun syncFriends() {
-        for (session in webSocketSessionStorageService.authoredSessionsIterator) {
-            val friends: List<FriendDto> = friendshipService.findUserFriends(session.user).map { friend ->
-                webSocketSessionStorageService.findUserSession(friend)?.toFriendDto() ?: friend.toFriendDto()
-            }
-
-            session.wsSession.sendMessage(
-                S2CFriends
-                    .builder()
-                    .friends(friends)
-                    .build()
-            )
-        }
-    }
 }

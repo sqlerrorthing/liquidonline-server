@@ -9,10 +9,10 @@ import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriendJoined
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriendLeaved
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.ws.listener.PacketListenerRegistrar
+import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import org.springframework.web.socket.WebSocketSession
 import java.time.Instant
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CopyOnWriteArraySet
 
@@ -20,12 +20,12 @@ import java.util.concurrent.CopyOnWriteArraySet
 class WebSocketSessionStorageService(
     private val userService: UserService,
     private val packetListenerRegistrar: PacketListenerRegistrar,
-    private val friendshipService: FriendshipService
+    private val friendshipService: FriendshipService,
+    @Lazy
+    private val sessionTaskService: SessionTaskService
 ) {
     private val sessions: MutableSet<WebSocketSession> = CopyOnWriteArraySet()
     private val authoredSessions: MutableList<UserSession> = CopyOnWriteArrayList()
-
-    val authoredSessionsIterator get() = authoredSessions.iterator()
 
     fun sessionPacket(session: WebSocketSession, packet: Packet) {
         if (!sessions.contains(session)) {
@@ -58,6 +58,8 @@ class WebSocketSessionStorageService(
         }
 
         friendsSessions.forEach { it.sendMessage(joinPacket) }
+
+        sessionTaskService.startSessionTasks(session)
     }
 
     fun findUserSession(entity: UserEntity): UserSession? {
@@ -95,6 +97,8 @@ class WebSocketSessionStorageService(
             }
 
             friendsSessions.forEach { it.sendMessage(leavePacket) }
+
+            sessionTaskService.stopSessionTasks(userSession)
         }
     }
 }
