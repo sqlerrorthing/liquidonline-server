@@ -1,9 +1,11 @@
 package fun.sqlerrorthing.liquidonline.session;
 
+import fun.sqlerrorthing.liquidonline.SharedConstants;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,14 +21,17 @@ public class Party {
     @NotNull
     String name;
 
-    boolean isPublic;
+    @Builder.Default
+    boolean isPublic = false;
 
     @NotNull
     PartyMember owner;
 
     @NotNull
-    List<PartyMember> members;
+    @Builder.Default
+    List<PartyMember> members = new ArrayList<>(SharedConstants.MAX_PARTY_MEMBERS_LIMIT);
 
     @NotNull
-    List<InvitedMember> invitedMembers;
+    @Builder.Default
+    List<InvitedMember> invitedMembers = new ArrayList<>(SharedConstants.MAX_PARTY_MEMBERS_LIMIT);
 }

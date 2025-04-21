@@ -2,20 +2,26 @@ package `fun`.sqlerrorthing.liquidonline.extensions
 
 import `fun`.sqlerrorthing.liquidonline.dto.FriendDto
 import `fun`.sqlerrorthing.liquidonline.dto.UserAccountDto
+import `fun`.sqlerrorthing.liquidonline.dto.play.PlayDto
 import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
 import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.services.FriendshipService
 import `fun`.sqlerrorthing.liquidonline.services.SessionStorageService
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
+import `fun`.sqlerrorthing.liquidonline.utils.Colors
 import `fun`.sqlerrorthing.liquidonline.utils.SpringContextHolder
 
 private val friendshipService by lazy {
-    SpringContextHolder.getBean(FriendshipService::class.java)!!
+    requireNotNull(SpringContextHolder.getBean(FriendshipService::class.java))
 }
 
 private val sessionStorageService by lazy {
-    SpringContextHolder.getBean(SessionStorageService::class.java)!!
+    requireNotNull(SpringContextHolder.getBean(SessionStorageService::class.java))
+}
+
+private val colors by lazy {
+    requireNotNull(SpringContextHolder.getBean(Colors::class.java))
 }
 
 fun UserSession.sendPacketToFriends(builder: (friend: UserSession) -> Packet) {
@@ -26,10 +32,24 @@ fun UserSession.sendPacketToFriends(builder: (friend: UserSession) -> Packet) {
         }
 }
 
+fun UserSession.createPartyMember(colorPosition: Int = 0, playData: PlayDto? = null): PartyMember {
+    return PartyMember.builder()
+        .userSession(this)
+        .color(colors.getColor(colorPosition))
+        .playData(playData)
+        .build()
+}
+
 fun UserSession.sendPacketToPartyMembers(builder: (member: PartyMember) -> Packet) {
     activeParty?.members?.forEach { member ->
-        member.sendMessage(builder(member))
+       if (member.userSession.user.id != this.user.id) {
+           member.sendMessage(builder(member))
+       }
     }
+}
+
+fun PartyMember.sendPacketToPartyMembers(builder: (member: PartyMember) -> Packet) {
+    userSession.sendPacketToPartyMembers(builder)
 }
 
 fun UserSession.sendMessage(packet: Packet) {
