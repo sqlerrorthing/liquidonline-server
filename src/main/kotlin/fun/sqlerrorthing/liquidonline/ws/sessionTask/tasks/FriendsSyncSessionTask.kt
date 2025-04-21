@@ -1,7 +1,7 @@
 package `fun`.sqlerrorthing.liquidonline.ws.sessionTask.tasks
 
 import `fun`.sqlerrorthing.liquidonline.dto.FriendDto
-import `fun`.sqlerrorthing.liquidonline.extensions.sendMessage
+import `fun`.sqlerrorthing.liquidonline.extensions.sendPacket
 import `fun`.sqlerrorthing.liquidonline.extensions.toFriendDto
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriends
 import `fun`.sqlerrorthing.liquidonline.services.FriendshipService
@@ -21,7 +21,7 @@ class FriendsSyncSessionTask(
             sessionStorageService.findUserSession(friend)?.toFriendDto() ?: friend.toFriendDto()
         }
 
-        session.sendMessage(
+        session.sendPacket(
             S2CFriends
                 .builder()
                 .friends(friends)

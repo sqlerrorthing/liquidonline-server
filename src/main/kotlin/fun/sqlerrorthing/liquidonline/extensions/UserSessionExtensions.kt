@@ -28,7 +28,7 @@ fun UserSession.sendPacketToFriends(builder: (friend: UserSession) -> Packet) {
     friendshipService.findUserFriends(this.user)
         .mapNotNull { sessionStorageService.findUserSession(it) }
         .forEach { friend ->
-            friend.sendMessage(builder(friend))
+            friend.sendPacket(builder(friend))
         }
 }
 
@@ -43,7 +43,7 @@ fun UserSession.createPartyMember(colorPosition: Int = 0, playData: PlayDto? = n
 fun UserSession.sendPacketToPartyMembers(builder: (member: PartyMember) -> Packet) {
     activeParty?.members?.forEach { member ->
        if (member.userSession.user.id != this.user.id) {
-           member.sendMessage(builder(member))
+           member.sendPacket(builder(member))
        }
     }
 }
@@ -52,8 +52,8 @@ fun PartyMember.sendPacketToPartyMembers(builder: (member: PartyMember) -> Packe
     userSession.sendPacketToPartyMembers(builder)
 }
 
-fun UserSession.sendMessage(packet: Packet) {
-    wsSession.sendMessage(packet)
+fun UserSession.sendPacket(packet: Packet) {
+    wsSession.sendPacket(packet)
 }
 
 fun UserEntity.toDto(): UserAccountDto = UserAccountDto.builder()

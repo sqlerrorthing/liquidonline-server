@@ -1,7 +1,7 @@
 package `fun`.sqlerrorthing.liquidonline.services
 
 import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
-import `fun`.sqlerrorthing.liquidonline.extensions.sendMessage
+import `fun`.sqlerrorthing.liquidonline.extensions.sendPacket
 import `fun`.sqlerrorthing.liquidonline.extensions.toFriendDto
 import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.login.C2SLogin
@@ -57,7 +57,7 @@ class SessionStorageService(
             findUserSession(friend)?.wsSession
         }
 
-        friendsSessions.forEach { it.sendMessage(joinPacket) }
+        friendsSessions.forEach { it.sendPacket(joinPacket) }
 
         sessionTaskService.startSessionTasks(session)
     }
@@ -96,7 +96,7 @@ class SessionStorageService(
                 findUserSession(friend)?.wsSession
             }
 
-            friendsSessions.forEach { it.sendMessage(leavePacket) }
+            friendsSessions.forEach { it.sendPacket(leavePacket) }
 
             sessionTaskService.stopSessionTasks(userSession)
         }

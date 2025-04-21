@@ -38,4 +38,19 @@ public class UserSession implements Principal {
     public String getName() {
         return user.getName();
     }
+
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+
+        UserSession userSession = (UserSession) other;
+        return user.equals(userSession.user);
+    }
+
+    @Override
+    public int hashCode() {
+        return user.hashCode();
+    }
 }

@@ -1,6 +1,6 @@
 package `fun`.sqlerrorthing.liquidonline.ws.listener
 
-import `fun`.sqlerrorthing.liquidonline.extensions.sendMessage
+import `fun`.sqlerrorthing.liquidonline.extensions.sendPacket
 import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import org.springframework.beans.factory.SmartInitializingSingleton
@@ -40,7 +40,7 @@ class PacketListenerRegistrar(
         val result = listener.method.call(listener.bean, userSession, packet)
 
         if (result is Packet) {
-            userSession.sendMessage(result)
+            userSession.sendPacket(result)
         }
     }
 

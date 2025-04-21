@@ -11,7 +11,7 @@ private val objectMapper by lazy {
     SpringContextHolder.getBean(ObjectMapper::class.java)
 }
 
-fun WebSocketSession.sendMessage(message: Packet) {
+fun WebSocketSession.sendPacket(message: Packet) {
     this.sendMessage(TextMessage(message.serialize()))
 }
 

@@ -34,4 +34,18 @@ public class Party {
     @NotNull
     @Builder.Default
     List<InvitedMember> invitedMembers = new ArrayList<>(SharedConstants.MAX_PARTY_MEMBERS_LIMIT);
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+
+        Party party = (Party) other;
+        return uuid.equals(party.uuid);
+    }
+
+    @Override
+    public int hashCode() {
+        return uuid.hashCode();
+    }
 }

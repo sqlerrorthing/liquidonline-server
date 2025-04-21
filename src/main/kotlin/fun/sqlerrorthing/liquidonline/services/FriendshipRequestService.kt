@@ -2,12 +2,9 @@ package `fun`.sqlerrorthing.liquidonline.services
 
 import `fun`.sqlerrorthing.liquidonline.entities.FriendshipRequestEntity
 import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
-import `fun`.sqlerrorthing.liquidonline.extensions.sendMessage
-import `fun`.sqlerrorthing.liquidonline.extensions.toFriendDto
+import `fun`.sqlerrorthing.liquidonline.extensions.sendPacket
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CNewIncomingFriendRequest
-import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2COutgoingFriendRequest
 import `fun`.sqlerrorthing.liquidonline.repository.FriendshipRequestRepository
-import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -43,7 +40,7 @@ class FriendshipRequestService(
 
         request = friendshipRequestRepository.save(request)
 
-        receiverSession?.sendMessage(
+        receiverSession?.sendPacket(
             S2CNewIncomingFriendRequest
                 .builder()
                 .from(sender.username)

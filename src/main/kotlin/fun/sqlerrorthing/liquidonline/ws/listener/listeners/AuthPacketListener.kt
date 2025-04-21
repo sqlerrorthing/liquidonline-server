@@ -1,6 +1,6 @@
 package `fun`.sqlerrorthing.liquidonline.ws.listener.listeners
 
-import `fun`.sqlerrorthing.liquidonline.extensions.sendMessage
+import `fun`.sqlerrorthing.liquidonline.extensions.sendPacket
 import `fun`.sqlerrorthing.liquidonline.extensions.toDto
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.login.C2SLogin
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.login.S2CConnected
@@ -21,7 +21,7 @@ class AuthPacketListener(
 ) {
     fun authConnection(session: WebSocketSession, packet: C2SLogin): UserSession? {
         val user = userService.findUserByToken(packet.token) ?: run {
-            session.sendMessage(
+            session.sendPacket(
                 S2CDisconnected
                     .builder()
                     .reason(S2CDisconnected.Reason.INVALID_TOKEN)
@@ -32,7 +32,7 @@ class AuthPacketListener(
         }
 
         if (sessionStorageService.findUserSession(user) != null) {
-            session.sendMessage(
+            session.sendPacket(
                 S2CDisconnected
                     .builder()
                     .reason(S2CDisconnected.Reason.ALREADY_CONNECTED)
@@ -43,7 +43,7 @@ class AuthPacketListener(
         }
 
         val head = skinValidator.validateHead(packet.skin) ?: run {
-            session.sendMessage(
+            session.sendPacket(
                 S2CDisconnected
                     .builder()
                     .reason(S2CDisconnected.Reason.INVALID_INITIAL_PLAYER_DATA)
@@ -64,7 +64,7 @@ class AuthPacketListener(
 
         session.attributes["user"] = userSession
 
-        session.sendMessage(
+        session.sendPacket(
             S2CConnected
                 .builder()
                 .account(user.toDto())

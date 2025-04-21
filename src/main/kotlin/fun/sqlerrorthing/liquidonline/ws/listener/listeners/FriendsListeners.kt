@@ -1,6 +1,6 @@
 package `fun`.sqlerrorthing.liquidonline.ws.listener.listeners
 
-import `fun`.sqlerrorthing.liquidonline.extensions.sendMessage
+import `fun`.sqlerrorthing.liquidonline.extensions.sendPacket
 import `fun`.sqlerrorthing.liquidonline.extensions.toFriendDto
 import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.friends.C2SRespondFriendRequest
@@ -53,7 +53,7 @@ class FriendsListeners(
 
             friendshipRequestService.acceptFriendRequest(request)
 
-            sessionStorageService.findUserSession(receiver)?.sendMessage(
+            sessionStorageService.findUserSession(receiver)?.sendPacket(
                 S2COutgoingFriendRequest.builder()
                     .requestId(request.id)
                     .to(request.receiver.username)
@@ -101,7 +101,7 @@ class FriendsListeners(
 
         friendshipService.brokeFriendship(friendship)
 
-        sessionStorageService.findUserSession(friend)?.sendMessage(
+        sessionStorageService.findUserSession(friend)?.sendPacket(
             S2CFriendShipBroken
                 .builder()
                 .with(userSession.user.id)
@@ -128,7 +128,7 @@ class FriendsListeners(
             if (isSender && packet.status == C2SRespondFriendRequest.Status.REJECT) {
                 friendshipRequestService.rejectFriendRequest(request)
 
-                sessionStorageService.findUserSession(request.receiver)?.sendMessage(
+                sessionStorageService.findUserSession(request.receiver)?.sendPacket(
                     S2CIncomingFriendRequestRejected.builder()
                         .requestId(request.id)
                         .from(userSession.user.username)
@@ -153,7 +153,7 @@ class FriendsListeners(
             C2SRespondFriendRequest.Status.ACCEPTED -> {
                 friendshipRequestService.acceptFriendRequest(request)
 
-                senderSession?.sendMessage(
+                senderSession?.sendPacket(
                     S2COutgoingFriendRequest.builder()
                         .requestId(request.id)
                         .to(request.receiver.username)
@@ -165,7 +165,7 @@ class FriendsListeners(
             C2SRespondFriendRequest.Status.REJECT -> {
                 friendshipRequestService.rejectFriendRequest(request)
 
-                senderSession?.sendMessage(
+                senderSession?.sendPacket(
                     S2COutgoingFriendRequest.builder()
                         .requestId(request.id)
                         .to(request.receiver.username)

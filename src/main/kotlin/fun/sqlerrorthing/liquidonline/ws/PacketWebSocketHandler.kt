@@ -1,7 +1,7 @@
 package `fun`.sqlerrorthing.liquidonline.ws
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import `fun`.sqlerrorthing.liquidonline.extensions.sendMessage
+import `fun`.sqlerrorthing.liquidonline.extensions.sendPacket
 import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.packets.Packets
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.login.C2SLogin
@@ -24,7 +24,7 @@ abstract class PacketWebSocketHandler(
             try {
                 validatePacket(deserialized)
             } catch (e: ConstraintViolationException) {
-                session.sendMessage(
+                session.sendPacket(
                     S2CValidationFailure
                         .builder()
                         .details(
@@ -40,7 +40,7 @@ abstract class PacketWebSocketHandler(
                 )
 
                 if (deserialized is C2SLogin) {
-                    session.sendMessage(
+                    session.sendPacket(
                         S2CDisconnected
                             .builder()
                             .reason(S2CDisconnected.Reason.INVALID_INITIAL_PLAYER_DATA)

@@ -5,9 +5,11 @@ import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import java.util.Base64
 
-fun PartyMember.sendMessage(packet: Packet) {
-    userSession.sendMessage(packet)
+fun PartyMember.sendPacket(packet: Packet) {
+    userSession.sendPacket(packet)
 }
+
+val PartyMember.id get() = this.userSession.user.id
 
 fun PartyMember.toPartyMemberDto(): PartyMemberDto {
     return PartyMemberDto.builder()

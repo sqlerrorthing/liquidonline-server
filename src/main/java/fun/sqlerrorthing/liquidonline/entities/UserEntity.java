@@ -48,4 +48,14 @@ public class UserEntity implements Principal {
     public String getName() {
         return username;
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+
+        UserEntity that = (UserEntity) other;
+        return id.equals(that.id);
+    }
+
 }
