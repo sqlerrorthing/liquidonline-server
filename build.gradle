@@ -7,6 +7,8 @@ plugins {
 
     id 'org.jetbrains.kotlin.plugin.lombok' version '2.1.20'
     id 'io.freefair.lombok' version "8.13"
+
+    id 'org.graalvm.buildtools.native' version "0.10.6"
 }
 
 group = 'fun.sqlerrorthing'
@@ -15,6 +17,17 @@ version = '0.0.1-SNAPSHOT'
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+graalvmNative {
+    binaries {
+        main {
+            imageName = "liquidonline-server"
+            buildArgs.add("-H:Name=liquidonline-server")
+            buildArgs.add("--no-fallback")
+            buildArgs.add("--enable-url-protocols=http,https")
+        }
     }
 }
 
