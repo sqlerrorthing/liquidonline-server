@@ -3,7 +3,7 @@ package `fun`.sqlerrorthing.liquidonline.ws
 import com.fasterxml.jackson.databind.ObjectMapper
 import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.login.C2SLogin
-import `fun`.sqlerrorthing.liquidonline.services.impl.SessionStorageService
+import `fun`.sqlerrorthing.liquidonline.services.SessionStorageService
 import `fun`.sqlerrorthing.liquidonline.ws.listener.listeners.AuthPacketListener
 import jakarta.validation.Validator
 import org.springframework.stereotype.Component
@@ -23,8 +23,9 @@ class MainWebSocketHandler(
         }
 
         if (packet is C2SLogin) {
-            val userSession = authPacketListener.authConnection(session, packet) ?: return
-            sessionStorageService.authSessionPacket(session, userSession)
+            authPacketListener.authConnection(session, packet)?.let {
+                sessionStorageService.authSession(it)
+            }
         } else {
             sessionStorageService.sessionPacket(session, packet)
         }
@@ -35,6 +36,6 @@ class MainWebSocketHandler(
     }
 
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
-        sessionStorageService.removeSession(session)
+        sessionStorageService.removeSessionAndNotifyOtherUsers(session)
     }
 }

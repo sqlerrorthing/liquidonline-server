@@ -1,27 +1,18 @@
 package `fun`.sqlerrorthing.liquidonline.services.impl
 
 import `fun`.sqlerrorthing.liquidonline.dto.play.PlayDto
-import `fun`.sqlerrorthing.liquidonline.extensions.createPartyMember
-import `fun`.sqlerrorthing.liquidonline.extensions.id
-import `fun`.sqlerrorthing.liquidonline.extensions.sendPacket
-import `fun`.sqlerrorthing.liquidonline.extensions.sendPacketToInvitedMembers
-import `fun`.sqlerrorthing.liquidonline.extensions.sendPacketToMembers
-import `fun`.sqlerrorthing.liquidonline.extensions.toPartyMemberDto
-import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartyInviteRevoked
-import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartyKicked
-import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartyMemberJoined
-import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartyMemberLeaved
-import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartyOwnerTransferred
-import `fun`.sqlerrorthing.liquidonline.services.PartyService
+import `fun`.sqlerrorthing.liquidonline.extensions.*
+import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.*
+import `fun`.sqlerrorthing.liquidonline.services.PartyServiceWithNotifyPackets
 import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
 @Service
-class InMemoryPartyServiceImpl : PartyService {
+class InMemoryPartyServiceWithNotifyPacketsImpl : PartyServiceWithNotifyPackets {
     private val parties: MutableList<Party> = CopyOnWriteArrayList()
 
     override fun createParty(

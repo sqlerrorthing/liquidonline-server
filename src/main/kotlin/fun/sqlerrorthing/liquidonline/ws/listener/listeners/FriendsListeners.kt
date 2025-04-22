@@ -7,11 +7,10 @@ import `fun`.sqlerrorthing.liquidonline.packets.c2s.friends.C2SRespondFriendRequ
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.friends.C2SSendFriendRequest
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.friends.C2SStopBeingFriends
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.*
+import `fun`.sqlerrorthing.liquidonline.services.FriendshipRequestService
 import `fun`.sqlerrorthing.liquidonline.services.FriendshipService
-import `fun`.sqlerrorthing.liquidonline.services.impl.FriendshipRequestService
-import `fun`.sqlerrorthing.liquidonline.services.impl.RepositoryFriendshipServiceImpl
-import `fun`.sqlerrorthing.liquidonline.services.impl.UserService
-import `fun`.sqlerrorthing.liquidonline.services.impl.SessionStorageService
+import `fun`.sqlerrorthing.liquidonline.services.SessionStorageService
+import `fun`.sqlerrorthing.liquidonline.services.UserService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.ws.listener.PacketMessageListener
 import `fun`.sqlerrorthing.liquidonline.ws.listener.WebSocketMessageListener
@@ -77,7 +76,7 @@ class FriendsListeners(
         }
 
         val request = friendshipRequestService
-            .createFriendRequest(userSession.user, receiver, sessionStorageService.findUserSession(receiver)?.wsSession)
+            .createFriendRequestAndNotifyReceiverIfOnline(userSession.user, receiver, sessionStorageService.findUserSession(receiver)?.wsSession)
 
         return S2CFriendRequestResult
             .builder()

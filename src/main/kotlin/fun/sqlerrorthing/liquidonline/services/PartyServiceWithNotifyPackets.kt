@@ -5,7 +5,7 @@ import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 
-interface PartyService {
+interface PartyServiceWithNotifyPackets {
     fun createParty(
         name: String,
         baseMember: UserSession,

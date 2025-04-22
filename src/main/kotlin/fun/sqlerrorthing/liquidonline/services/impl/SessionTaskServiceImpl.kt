@@ -1,5 +1,6 @@
 package `fun`.sqlerrorthing.liquidonline.services.impl
 
+import `fun`.sqlerrorthing.liquidonline.services.SessionTaskService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.ws.sessionTask.SessionTask
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
@@ -9,9 +10,9 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ScheduledFuture
 
 @Service
-class SessionTaskService(
+class SessionTaskServiceImpl(
     private val tasks: List<SessionTask>
-) {
+): SessionTaskService {
     private val taskScheduler = ThreadPoolTaskScheduler().apply {
         poolSize = 4
         initialize()
@@ -19,7 +20,7 @@ class SessionTaskService(
 
     private val sessionFutures = ConcurrentHashMap<String, List<ScheduledFuture<*>>>()
 
-    fun startSessionTasks(session: UserSession) {
+    override fun startSessionTasks(session: UserSession) {
         val wsSessionId = session.wsSession.id
 
         val futures = tasks.map { task ->
@@ -38,7 +39,7 @@ class SessionTaskService(
         sessionFutures[wsSessionId] = futures
     }
 
-    fun stopSessionTasks(session: UserSession) {
+    override fun stopSessionTasks(session: UserSession) {
         sessionFutures.remove(session.wsSession.id)?.forEach { it.cancel(true) }
     }
 }

@@ -5,6 +5,7 @@ import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
 import `fun`.sqlerrorthing.liquidonline.extensions.sendPacket
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CNewIncomingFriendRequest
 import `fun`.sqlerrorthing.liquidonline.repository.FriendshipRequestRepository
+import `fun`.sqlerrorthing.liquidonline.services.FriendshipRequestService
 import `fun`.sqlerrorthing.liquidonline.services.FriendshipService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -12,27 +13,31 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.socket.WebSocketSession
 
 @Service
-class FriendshipRequestService(
+class RepositoryFriendshipRequestServiceImpl(
     private val friendshipRequestRepository: FriendshipRequestRepository,
     private val friendshipService: FriendshipService
-) {
+): FriendshipRequestService {
     @Transactional(readOnly = true)
-    fun findBySenderAndReceiver(sender: UserEntity, receiver: UserEntity): FriendshipRequestEntity? {
+    override fun findBySenderAndReceiver(sender: UserEntity, receiver: UserEntity): FriendshipRequestEntity? {
         return friendshipRequestRepository.findBySenderAndReceiver(sender, receiver)
     }
 
     @Transactional(readOnly = true)
-    fun findAllBySender(sender: UserEntity): List<FriendshipRequestEntity> {
+    override fun findAllBySender(sender: UserEntity): List<FriendshipRequestEntity> {
         return friendshipRequestRepository.findAllBySender(sender)
     }
 
     @Transactional(readOnly = true)
-    fun findAllByReceiver(receiver: UserEntity): List<FriendshipRequestEntity> {
+    override fun findAllByReceiver(receiver: UserEntity): List<FriendshipRequestEntity> {
         return friendshipRequestRepository.findAllByReceiver(receiver)
     }
 
     @Transactional
-    fun createFriendRequest(sender: UserEntity, receiver: UserEntity, receiverSession: WebSocketSession?): FriendshipRequestEntity {
+    override fun createFriendRequestAndNotifyReceiverIfOnline(
+        sender: UserEntity,
+        receiver: UserEntity,
+        receiverSession: WebSocketSession?
+    ): FriendshipRequestEntity {
         var request = FriendshipRequestEntity
             .builder()
             .sender(sender)
@@ -53,14 +58,14 @@ class FriendshipRequestService(
     }
 
     @Transactional(readOnly = true)
-    fun findFriendRequest(
+    override fun findFriendRequest(
         id: Int
     ): FriendshipRequestEntity? {
         return friendshipRequestRepository.findByIdOrNull(id)
     }
 
     @Transactional
-    fun acceptFriendRequest(
+    override fun acceptFriendRequest(
         request: FriendshipRequestEntity
     ) {
         friendshipService.createFriendship(
@@ -72,7 +77,7 @@ class FriendshipRequestService(
     }
 
     @Transactional
-    fun rejectFriendRequest(
+    override fun rejectFriendRequest(
         request: FriendshipRequestEntity
     ) {
         friendshipRequestRepository.delete(request)
