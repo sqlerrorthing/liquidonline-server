@@ -5,8 +5,8 @@ import `fun`.sqlerrorthing.liquidonline.extensions.toDto
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.login.C2SLogin
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.login.S2CConnected
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.login.S2CDisconnected
-import `fun`.sqlerrorthing.liquidonline.services.UserService
-import `fun`.sqlerrorthing.liquidonline.services.SessionStorageService
+import `fun`.sqlerrorthing.liquidonline.services.impl.UserService
+import `fun`.sqlerrorthing.liquidonline.services.impl.SessionStorageService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.utils.SkinValidator
 import org.springframework.stereotype.Component
