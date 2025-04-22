@@ -24,9 +24,15 @@ graalvmNative {
     binaries {
         main {
             imageName = "liquidonline-server"
+
             buildArgs.add("-H:Name=liquidonline-server")
+            buildArgs.add("-H:+StripDebugInfo")
+            buildArgs.add("--static")
+            buildArgs.add("-O3")
             buildArgs.add("--no-fallback")
             buildArgs.add("--enable-url-protocols=http,https")
+
+            useFatJar = true
         }
     }
 }
