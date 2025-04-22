@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.security.Principal;
 import java.time.Instant;
-import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -56,6 +55,11 @@ public class UserEntity implements Principal {
 
         UserEntity that = (UserEntity) other;
         return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 
 }
