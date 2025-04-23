@@ -21,19 +21,32 @@ class AuthServiceImpl(
     private val sessionStorageService: SessionStorageService,
     private val skinValidator: SkinValidator
 ) : AuthService {
-    override fun authenticateUser(session: WebSocketSession, packet: C2SLogin): UserSession? {
-        val user = userService.findUserByToken(packet.token) ?: return handleInvalidToken(session)
-
-        if (sessionStorageService.findUserSession(user) != null) {
-            return handleAlreadyConnected(session)
+    override fun authenticate(session: WebSocketSession, packet: C2SLogin) {
+        if (!sessionStorageService.isInSession(session)) {
+            return
         }
 
-        val head = skinValidator.validateHead(packet.skin) ?: return handleInvalidSkin(session)
+        val user = userService.findUserByToken(packet.token) ?: run {
+            handleInvalidToken(session)
+            return
+        }
 
-        return createUserSession(session, packet, user, head)
+        if (sessionStorageService.findUserSession(user) != null) {
+            handleAlreadyConnected(session)
+            return
+        }
+
+        val head = skinValidator.validateHead(packet.skin) ?: run {
+            handleInvalidSkin(session)
+            return
+        }
+
+        createUserSession(session, packet, user, head).let {
+            sessionStorageService.authSessionAndNotifyUserFriends(it)
+        }
     }
 
-    private fun handleInvalidToken(session: WebSocketSession): UserSession? {
+    private fun handleInvalidToken(session: WebSocketSession) {
         session.sendPacket(
             S2CDisconnected.builder()
                 .reason(S2CDisconnected.Reason.INVALID_TOKEN)
@@ -41,10 +54,9 @@ class AuthServiceImpl(
         )
 
         session.close(CloseStatus.BAD_DATA.withReason("Invalid token"))
-        return null
     }
 
-    private fun handleAlreadyConnected(session: WebSocketSession): UserSession? {
+    private fun handleAlreadyConnected(session: WebSocketSession) {
         session.sendPacket(
             S2CDisconnected.builder()
                 .reason(S2CDisconnected.Reason.ALREADY_CONNECTED)
@@ -52,10 +64,9 @@ class AuthServiceImpl(
         )
 
         session.close(CloseStatus.NORMAL.withReason("Already connected"))
-        return null
     }
 
-    private fun handleInvalidSkin(session: WebSocketSession): UserSession? {
+    private fun handleInvalidSkin(session: WebSocketSession) {
         session.sendPacket(
             S2CDisconnected.builder()
                 .reason(S2CDisconnected.Reason.INVALID_INITIAL_PLAYER_DATA)
@@ -63,7 +74,6 @@ class AuthServiceImpl(
         )
 
         session.close(CloseStatus.NORMAL.withReason("Invalid head"))
-        return null
     }
 
     private fun createUserSession(

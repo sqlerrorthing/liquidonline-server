@@ -18,14 +18,8 @@ class MainWebSocketHandler(
     private val authService: AuthService,
 ) : PacketWebSocketHandler(objectMapper, validator) {
     override fun handlePacket(session: WebSocketSession, packet: Packet) {
-        if (!sessionStorageService.isInSession(session)) {
-            return
-        }
-
         if (packet is C2SLogin) {
-            authService.authenticateUser(session, packet)?.let {
-                sessionStorageService.authSessionAndNotifyUserFriends(it)
-            }
+            authService.authenticate(session, packet)
         } else {
             sessionStorageService.sessionPacket(session, packet)
         }

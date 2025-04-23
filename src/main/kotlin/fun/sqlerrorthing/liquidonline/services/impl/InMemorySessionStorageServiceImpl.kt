@@ -25,7 +25,7 @@ class InMemorySessionStorageServiceImpl(
     private val authoredSessions: MutableList<UserSession> = CopyOnWriteArrayList()
 
     override fun sessionPacket(session: WebSocketSession, packet: Packet) {
-        if (!sessions.contains(session)) {
+        if (!isInSession(session)) {
             return
         }
 

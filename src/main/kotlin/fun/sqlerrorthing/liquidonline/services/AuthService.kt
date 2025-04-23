@@ -5,5 +5,5 @@ import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import org.springframework.web.socket.WebSocketSession
 
 interface AuthService {
-    fun authenticateUser(session: WebSocketSession, packet: C2SLogin): UserSession?
+    fun authenticate(session: WebSocketSession, packet: C2SLogin)
 }
