@@ -1,13 +1,13 @@
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.9.25'
-    id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25'
+    id 'org.jetbrains.kotlin.jvm' version '2.0.21'
+    id 'org.jetbrains.kotlin.plugin.spring' version '2.0.21'
     id 'org.springframework.boot' version '3.4.4'
     id 'io.spring.dependency-management' version '1.1.7'
-    id 'org.jetbrains.kotlin.plugin.jpa' version '1.9.25'
+    id 'org.jetbrains.kotlin.plugin.jpa' version '2.0.21'
 
-    id 'org.jetbrains.kotlin.plugin.lombok' version '2.1.20'
+    id 'org.jetbrains.kotlin.plugin.lombok' version '2.0.21'
     id 'io.freefair.lombok' version "8.13"
 
     id 'org.graalvm.buildtools.native' version "0.10.6"
@@ -38,14 +38,6 @@ graalvmNative {
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
-    }
-}
-
-configurations.configureEach {
-    resolutionStrategy.eachDependency {
-        if (requested.group == "org.jetbrains.kotlin") {
-            useVersion("2.0.21")
-        }
     }
 }
 
