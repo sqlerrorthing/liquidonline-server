@@ -1,3 +1,5 @@
+name: Verify pr
+
 on:
   push:
     branches:
@@ -22,12 +24,13 @@ jobs:
           distribution: 'graalvm'
           java-version: '21'
 
-      - name: Setup and build
+      - name: Setup gradle
         uses: gradle/actions/setup-gradle@v4
         env:
           CI: true
-        with:
-          arguments: build
+
+      - name: Build
+        run: ./gradlew build
 
       # Make sure we always run this upload task,
       # because the previous step may fail if there are findings.
