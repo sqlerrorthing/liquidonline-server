@@ -1,3 +1,4 @@
+@file:Suppress("MatchingDeclarationName")
 package `fun`.sqlerrorthing.liquidonline.exceptions
 
 object UserNotFoundException : RuntimeException() {
