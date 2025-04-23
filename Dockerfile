@@ -1,4 +1,4 @@
-FROM ghcr.io/graalvm/native-image-community:21 AS builder
+FROM gradle:jdk-21-and-22-graal AS builder
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ FROM alpine:3.19
 
 WORKDIR /app
 
-RUN apk add --no-cache libpq libssl1.1
+RUN apk add --no-cache libpq libssl3
 
 COPY --from=builder /app/build/native/nativeCompile/* /app/
 
