@@ -19,7 +19,7 @@ class InMemorySessionStorageServiceImpl(
     private val packetListenerRegistrar: PacketListenerRegistrar,
     @Lazy
     private val sessionTaskService: SessionTaskService,
-    private val onlineFriendsNotifierService: OnlineFriendsNotifierService
+    private val friendsNotifierService: FriendsNotifierService
 ): SessionStorageService {
     private val sessions: MutableSet<WebSocketSession> = CopyOnWriteArraySet()
     private val authoredSessions: MutableList<UserSession> = CopyOnWriteArrayList()
@@ -44,7 +44,7 @@ class InMemorySessionStorageServiceImpl(
 
     override fun authSessionAndNotifyUserFriends(session: UserSession) {
         authoredSessions.add(session)
-        onlineFriendsNotifierService.notifyFriendJoined(session)
+        friendsNotifierService.notifyFriendJoined(session)
     }
 
     override fun findUserSession(user: UserEntity): UserSession? {
@@ -66,7 +66,7 @@ class InMemorySessionStorageServiceImpl(
                 lastLogin = Instant.now()
             })
 
-            onlineFriendsNotifierService.notifyFriendLeaved(userSession)
+            friendsNotifierService.notifyFriendLeaved(userSession)
         }
     }
 }
