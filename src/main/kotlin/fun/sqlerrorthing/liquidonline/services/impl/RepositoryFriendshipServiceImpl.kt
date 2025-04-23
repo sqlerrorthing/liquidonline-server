@@ -36,7 +36,7 @@ class RepositoryFriendshipServiceImpl(
         .apply { friendshipRepository.save(this) }
     }
 
-    override fun brokeFriendship(friendshipEntity: FriendshipEntity) {
-        friendshipRepository.delete(friendshipEntity)
+    override fun brokeFriendship(friendship: FriendshipEntity) {
+        friendshipRepository.delete(friendship)
     }
 }

@@ -18,14 +18,17 @@ class PacketListenerRegistrar(
 ) : SmartInitializingSingleton {
     private val listeners = mutableMapOf<KClass<out Packet>, ListenerMethod>()
 
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST", "NestedBlockDepth")
     override fun afterSingletonsInstantiated() {
         val beans = applicationContext.getBeansWithAnnotation(WebSocketMessageListener::class.java)
 
         beans.values.forEach { bean ->
             bean::class.members.forEach { method ->
                 method.findAnnotation<PacketMessageListener>()?.let { _ ->
-                    method.parameters.find { it.type.classifier is KClass<*> && (it.type.classifier as KClass<*>).isSubclassOf(Packet::class) }?.let { packetArg ->
+                    method.parameters.find {
+                        it.type.classifier is KClass<*>
+                        && (it.type.classifier as KClass<*>).isSubclassOf(Packet::class)
+                    }?.let { packetArg ->
                         val packetType = packetArg.type.classifier as KClass<out Packet>
                         method.isAccessible = true
                         listeners[packetType] = ListenerMethod(bean, method, packetType)

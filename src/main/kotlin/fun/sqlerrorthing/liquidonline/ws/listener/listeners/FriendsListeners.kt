@@ -25,6 +25,7 @@ class FriendsListeners(
     private val sessionStorageService: SessionStorageService
 ) {
     @PacketMessageListener
+    @Suppress("ReturnCount")
     private fun sendFriendRequest(userSession: UserSession, packet: C2SSendFriendRequest): S2CFriendRequestResult {
         if (userSession.user.username == packet.username) {
             return S2CFriendRequestResult
@@ -76,7 +77,11 @@ class FriendsListeners(
         }
 
         val request = friendshipRequestService
-            .createFriendRequestAndNotifyReceiverIfOnline(userSession.user, receiver, sessionStorageService.findUserSession(receiver)?.wsSession)
+            .createFriendRequestAndNotifyReceiverIfOnline(
+                userSession.user,
+                receiver,
+                sessionStorageService.findUserSession(receiver)?.wsSession
+            )
 
         return S2CFriendRequestResult
             .builder()
@@ -86,6 +91,7 @@ class FriendsListeners(
     }
 
     @PacketMessageListener
+    @Suppress("ReturnCount")
     private fun stopBeingFriends(userSession: UserSession, packet: C2SStopBeingFriends): S2CStopBeingFriendsResult {
         val friend = userService.findUserById(packet.friendId)
             ?: return S2CStopBeingFriendsResult

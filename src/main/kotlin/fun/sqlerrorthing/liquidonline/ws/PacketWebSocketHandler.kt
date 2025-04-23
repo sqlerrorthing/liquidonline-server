@@ -62,7 +62,9 @@ abstract class PacketWebSocketHandler(
         val root = objectMapper.readTree(payload)
 
         val id = root["id"].asInt().toByte()
-        val packetClass: Class<out Packet> = Packets.PACKETS_WITH_ID[id] ?: throw IllegalArgumentException("Unknown packet id")
+
+        val packetClass: Class<out Packet> = Packets.PACKETS_WITH_ID[id]
+            ?: throw IllegalArgumentException("Unknown packet id")
 
         return objectMapper.treeToValue(root["payload"], packetClass)
     }
