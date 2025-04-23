@@ -21,21 +21,38 @@ java {
 }
 
 graalvmNative {
+    toolchainDetection = true
+
+    agent {
+        defaultMode = "standard"
+        enabled = true
+
+        builtinCallerFilter = true
+        builtinHeuristicFilter = true
+        enableExperimentalPredefinedClasses = false
+        enableExperimentalUnsafeAllocationTracing = false
+        trackReflectionMetadata = true
+    }
+
     binaries {
         main {
             imageName = "liquidonline-server"
 
-            buildArgs.add("-H:Name=liquidonline-server")
-            buildArgs.add("-H:+StripDebugInfo")
-            buildArgs.add("-O3")
-            buildArgs.add("--no-fallback")
-            buildArgs.add("--enable-url-protocols=http,https")
+            jvmArgs.addAll("-Dspring.aot.enabled=true")
+
+            buildArgs.addAll(
+                    "-H:Name=liquidonline-server",
+                    "-H:+StripDebugInfo",
+                    "-O3",
+                    "--libc=musl",
+                    "--enable-url-protocols=http,https",
+                    "--no-fallback",
+            )
 
             useFatJar = true
         }
     }
 }
-
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -54,6 +71,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.0'
+    implementation 'com.fasterxml.jackson.module:jackson-module-parameter-names:2.18.0'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation "com.github.sqlerrorthing:liquidonline-protocol:${project.protocol_version}"
     compileOnly 'org.projectlombok:lombok'

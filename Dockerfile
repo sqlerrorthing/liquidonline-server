@@ -1,4 +1,6 @@
-FROM gradle:jdk-21-and-22-graal AS builder
+FROM ghcr.io/graalvm/native-image-community:21-muslib AS builder
+
+RUN microdnf install -y findutils
 
 WORKDIR /app
 
@@ -12,9 +14,7 @@ WORKDIR /app
 
 RUN apk add --no-cache libpq libssl3
 
-COPY --from=builder /app/build/native/nativeCompile/* /app/
-
-RUN chmod +x /app/liquidonline-server
+COPY --from=builder /app/build/native/nativeCompile/* /app/bin/
 
 ENV SPRING_PROFILES_ACTIVE=production
 ENV POSTGRES_URL=""
@@ -23,4 +23,4 @@ ENV POSTGRES_PASSWORD=""
 
 EXPOSE 8080
 
-ENTRYPOINT ["/app/liquidonline-server"]
+ENTRYPOINT ["/app/bin/liquidonline-server"]
