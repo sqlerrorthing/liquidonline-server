@@ -4,6 +4,9 @@ import `fun`.sqlerrorthing.liquidonline.packets.c2s.update.C2SUpdateMinecraftUse
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.update.C2SUpdatePlayingServer
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.update.C2SUpdateSkin
 import `fun`.sqlerrorthing.liquidonline.services.FriendsNotifierService
+import `fun`.sqlerrorthing.liquidonline.services.MinecraftServerService
+import `fun`.sqlerrorthing.liquidonline.services.MinecraftSkinService
+import `fun`.sqlerrorthing.liquidonline.services.MinecraftUsernameService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.utils.SkinValidator
 import `fun`.sqlerrorthing.liquidonline.ws.listener.PacketMessageListener
@@ -13,34 +16,22 @@ import org.springframework.stereotype.Component
 @Component
 @WebSocketMessageListener
 class MinecraftDataUpdateListeners(
-    private val skinValidator: SkinValidator,
-    private val friendsNotifierService: FriendsNotifierService
+    private val minecraftUsernameService: MinecraftUsernameService,
+    private val minecraftServerService: MinecraftServerService,
+    private val minecraftSkinService: MinecraftSkinService
 ) {
     @PacketMessageListener
     fun handleMinecraftUsernameUpdateEvent(session: UserSession, packet: C2SUpdateMinecraftUsername) {
-        packet.username.takeIf { it != session.minecraftUsername }
-            ?.let {
-                session.minecraftUsername = it
-                friendsNotifierService.notifyFriendsWithMinecraftUsernameUpdate(session)
-            }
+        minecraftUsernameService.updateUsername(session, packet.username)
     }
 
     @PacketMessageListener
     fun handleMinecraftPlayingServerUpdateEvent(session: UserSession, packet: C2SUpdatePlayingServer) {
-        packet.server.takeIf { it != session.server }
-            ?.let {
-                session.server = packet.server
-                friendsNotifierService.notifyFriendsWithServerUpdate(session)
-        }
+        minecraftServerService.updateServer(session, packet.server)
     }
 
     @PacketMessageListener
     fun handleHeadSkinUpdateEvent(session: UserSession, packet: C2SUpdateSkin) {
-        skinValidator.validateHead(packet.skin)
-            ?.takeIf { !session.skin.contentEquals(it) }
-            ?.let {
-                session.skin = it
-                friendsNotifierService.notifyFriendsWithSkinUpdate(session)
-            }
+        minecraftSkinService.updateSkin(session, packet.skin)
     }
 }
