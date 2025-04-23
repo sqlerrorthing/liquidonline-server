@@ -29,6 +29,9 @@ jobs:
         env:
           CI: true
 
+      - name: Give perms
+        run: chmod +x ./gradlew
+
       - name: Build
         run: ./gradlew build
 
