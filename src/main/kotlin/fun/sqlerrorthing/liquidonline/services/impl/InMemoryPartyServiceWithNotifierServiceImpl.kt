@@ -8,6 +8,8 @@ import `fun`.sqlerrorthing.liquidonline.services.PartyService
 import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
@@ -16,6 +18,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 class InMemoryPartyServiceWithNotifierServiceImpl(
     private val partyNotifierService: PartyNotifierService
 ) : PartyService {
+    private val logger: Logger = LoggerFactory.getLogger(javaClass)
     private val parties: MutableList<Party> = CopyOnWriteArrayList()
 
     override fun createParty(
@@ -25,7 +28,7 @@ class InMemoryPartyServiceWithNotifierServiceImpl(
     ): Party {
         val member = baseMember.createPartyMember(playData = playData)
 
-        return Party.builder()
+        val party = Party.builder()
             .uuid(UUID.randomUUID())
             .name(name)
             .owner(member)
@@ -35,6 +38,9 @@ class InMemoryPartyServiceWithNotifierServiceImpl(
             this.members.add(member)
             parties.add(this)
         }
+
+        logger.info("Party created: name='{}', owner='{}'", name, member.userSession.user.username)
+        return party
     }
 
     override fun joinPartyMember(
@@ -42,6 +48,15 @@ class InMemoryPartyServiceWithNotifierServiceImpl(
         user: UserSession,
         playData: PlayDto?
     ): PartyMember {
+        require(party.hasMembers()) {
+            "At least one participant must be in the party. " +
+            "A party without a single participant cannot exist."
+        }
+
+        require(user.activeParty != party) {
+            "User is already in this party"
+        }
+
         val member = user.createPartyMember(
             colorPosition = party.members.size-1,
             playData = playData
@@ -51,6 +66,7 @@ class InMemoryPartyServiceWithNotifierServiceImpl(
         user.activeParty = party
 
         partyNotifierService.notifyPartyMemberJoined(party, member)
+        logger.info("User '{}' joined party '{}'", user.user.username, party.name)
         return member
     }
 
@@ -61,6 +77,7 @@ class InMemoryPartyServiceWithNotifierServiceImpl(
             partyNotifierService.notifyKickedMember(it, S2CPartyKicked.Reason.DISBANDED)
         }
 
+        logger.info("Party '{}' disbanded by owner '{}'", party.name, party.owner.userSession.user.username)
         removeParty(party)
     }
 
@@ -69,25 +86,40 @@ class InMemoryPartyServiceWithNotifierServiceImpl(
         member: PartyMember
     ) {
         removePartyMember(party, member)
-
         partyNotifierService.notifyKickedMember(member, S2CPartyKicked.Reason.KICKED)
+
+        logger.info("User '{}' was kicked from party '{}'", member.userSession.user.username, party.name)
     }
 
     fun removePartyMember(
         party: Party,
         member: PartyMember,
     ) {
-        member.userSession.activeParty = null
-        party.members.removeIf { it == member }
+        require(member.userSession.activeParty == party) {
+            "The user is not a member of this party"
+        }
 
-        if (party.members.isEmpty()) {
+        val wasOwner = party.owner == member
+
+        if (party.members.size - 1 == 0) {
+            logger.info(
+                "Last member '{}' left party '{}'. Party will be removed.",
+                member.userSession.user.username,
+                party.name
+            )
             removeParty(party)
             return
-        } else if (party.owner == member) {
-            transferPartyOwnership(party, party.members[0])
+        }
+
+        member.userSession.activeParty = null
+        party.members.remove(member)
+
+        if (wasOwner) {
+            transferPartyOwnership(party, party.members.first())
         }
 
         partyNotifierService.notifyPartyMemberLeaved(party, member)
+        logger.info("User '{}' left party '{}'", member.userSession.user.username, party.name)
     }
 
     override fun transferPartyOwnership(
@@ -96,6 +128,8 @@ class InMemoryPartyServiceWithNotifierServiceImpl(
     ) {
         party.owner = newOwner
         partyNotifierService.notifyPartyOwnerTransferred(party, newOwner)
+
+        logger.info("Ownership of party '{}' transferred to '{}'", party.name, newOwner.userSession.user.username)
     }
 
     private fun removeParty(
@@ -107,6 +141,8 @@ class InMemoryPartyServiceWithNotifierServiceImpl(
         partyNotifierService.notifyRevokedAllPartyInvites(party)
         party.invitedMembers.clear()
 
-        parties.removeIf { it == party }
+        parties.remove(party)
+
+        logger.info("Party '{}' fully removed", party.name)
     }
 }

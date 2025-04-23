@@ -31,6 +31,8 @@ fun Party.sendPacketToMembers(packet: Packet?) {
     }
 }
 
+fun Party.hasMembers(): Boolean = members.isNotEmpty()
+
 fun Party.sendPacketToInvitedMembers(builder: (invite: InvitedMember) -> Packet?) {
     invitedMembers.forEach { invite ->
         builder(invite)?.let { packet ->
