@@ -5,7 +5,7 @@ import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 
-interface PartyServiceWithNotifyPackets {
+interface PartyService {
     fun createParty(
         name: String,
         baseMember: UserSession,
@@ -18,7 +18,7 @@ interface PartyServiceWithNotifyPackets {
         playData: PlayDto? = null
     ): PartyMember
 
-    fun disboundAndNotifyPartyMembers(
+    fun disbandmentNotifyPartyMembers(
         party: Party
     )
 

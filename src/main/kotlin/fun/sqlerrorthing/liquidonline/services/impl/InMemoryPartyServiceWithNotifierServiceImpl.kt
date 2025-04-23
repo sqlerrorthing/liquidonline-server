@@ -3,7 +3,8 @@ package `fun`.sqlerrorthing.liquidonline.services.impl
 import `fun`.sqlerrorthing.liquidonline.dto.play.PlayDto
 import `fun`.sqlerrorthing.liquidonline.extensions.*
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.*
-import `fun`.sqlerrorthing.liquidonline.services.PartyServiceWithNotifyPackets
+import `fun`.sqlerrorthing.liquidonline.services.PartyNotifierService
+import `fun`.sqlerrorthing.liquidonline.services.PartyService
 import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
@@ -12,15 +13,17 @@ import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
 @Service
-class InMemoryPartyServiceWithNotifyPacketsImpl : PartyServiceWithNotifyPackets {
+class InMemoryPartyServiceWithNotifierServiceImpl(
+    private val partyNotifierService: PartyNotifierService
+) : PartyService {
     private val parties: MutableList<Party> = CopyOnWriteArrayList()
 
     override fun createParty(
         name: String,
-        creator: UserSession,
+        baseMember: UserSession,
         playData: PlayDto?,
     ): Party {
-        val member = creator.createPartyMember(playData = playData)
+        val member = baseMember.createPartyMember(playData = playData)
 
         return Party.builder()
             .uuid(UUID.randomUUID())
@@ -28,7 +31,7 @@ class InMemoryPartyServiceWithNotifyPacketsImpl : PartyServiceWithNotifyPackets 
             .owner(member)
             .build()
         .apply {
-            creator.activeParty = this
+            baseMember.activeParty = this
             this.members.add(member)
             parties.add(this)
         }
@@ -44,26 +47,20 @@ class InMemoryPartyServiceWithNotifyPacketsImpl : PartyServiceWithNotifyPackets 
             playData = playData
         )
 
-        val notifyPacket = S2CPartyMemberJoined.builder()
-            .member(member.toPartyMemberDto())
-            .build()
-
-        party.sendPacketToMembers { notifyPacket }
         party.members.add(member)
-
         user.activeParty = party
 
+        partyNotifierService.notifyPartyMemberJoined(party, member)
         return member
     }
 
-    override fun disboundAndNotifyPartyMembers(
+    override fun disbandmentNotifyPartyMembers(
         party: Party
     ) {
-        val kickPacket = S2CPartyKicked.builder()
-            .reason(S2CPartyKicked.Reason.DISBANDED)
-            .build()
+        party.members.forEach {
+            partyNotifierService.notifyKickedMember(it, S2CPartyKicked.Reason.DISBANDED)
+        }
 
-        party.sendPacketToMembers { kickPacket }
         removeParty(party)
     }
 
@@ -73,11 +70,7 @@ class InMemoryPartyServiceWithNotifyPacketsImpl : PartyServiceWithNotifyPackets 
     ) {
         removePartyMember(party, member)
 
-        member.sendPacket(
-            S2CPartyKicked.builder()
-                .reason(S2CPartyKicked.Reason.KICKED)
-                .build()
-        )
+        partyNotifierService.notifyKickedMember(member, S2CPartyKicked.Reason.KICKED)
     }
 
     fun removePartyMember(
@@ -94,12 +87,7 @@ class InMemoryPartyServiceWithNotifyPacketsImpl : PartyServiceWithNotifyPackets 
             transferPartyOwnership(party, party.members[0])
         }
 
-        S2CPartyMemberLeaved.builder()
-            .memberId(member.id)
-            .build()
-        .let {
-            party.sendPacketToMembers { _ -> it }
-        }
+        partyNotifierService.notifyPartyMemberLeaved(party, member)
     }
 
     override fun transferPartyOwnership(
@@ -107,29 +95,17 @@ class InMemoryPartyServiceWithNotifyPacketsImpl : PartyServiceWithNotifyPackets 
         newOwner: PartyMember
     ) {
         party.owner = newOwner
-
-        S2CPartyOwnerTransferred.builder()
-            .newOwnerId(newOwner.id)
-            .build()
-        .let {
-            party.sendPacketToMembers { _ -> it }
-        }
+        partyNotifierService.notifyPartyOwnerTransferred(party, newOwner)
     }
 
     private fun removeParty(
         party: Party
     ) {
-        party.sendPacketToInvitedMembers { invite ->
-            S2CPartyInviteRevoked.builder()
-                .inviteUuid(invite.uuid)
-                .build()
-        }
-
-        party.members.forEach {
-            member -> member.userSession.activeParty = null
-        }
-
+        party.members.forEach { it.userSession.activeParty = null }
         party.members.clear()
+
+        partyNotifierService.notifyRevokedAllPartyInvites(party)
+        party.invitedMembers.clear()
 
         parties.removeIf { it == party }
     }

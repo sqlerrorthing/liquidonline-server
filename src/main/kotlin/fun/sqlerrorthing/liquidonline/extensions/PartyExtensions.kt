@@ -25,6 +25,12 @@ fun Party.sendPacketToMembers(builder: (member: PartyMember) -> Packet?) {
     }
 }
 
+fun Party.sendPacketToMembers(packet: Packet?) {
+    packet?.let {
+        sendPacketToMembers { packet }
+    }
+}
+
 fun Party.sendPacketToInvitedMembers(builder: (invite: InvitedMember) -> Packet?) {
     invitedMembers.forEach { invite ->
         builder(invite)?.let { packet ->
