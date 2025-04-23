@@ -1,3 +1,5 @@
+import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.9.25'
     id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25'
@@ -9,6 +11,8 @@ plugins {
     id 'io.freefair.lombok' version "8.13"
 
     id 'org.graalvm.buildtools.native' version "0.10.6"
+
+    id 'io.gitlab.arturbosch.detekt' version '1.23.8'
 }
 
 group = 'fun.sqlerrorthing'
@@ -37,6 +41,14 @@ configurations {
     }
 }
 
+configurations.configureEach {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.jetbrains.kotlin") {
+            useVersion("2.0.21")
+        }
+    }
+}
+
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
@@ -59,6 +71,28 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
     implementation 'org.apache.commons:commons-lang3:3.17.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    detektPlugins 'io.gitlab.arturbosch.detekt:detekt-rules-ruleauthors:1.23.8'
+}
+
+detekt {
+    config.setFrom(file("${rootProject.projectDir}/config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
+    baseline = file("${rootProject.projectDir}/config/detekt/baseline.xml")
+}
+
+tasks.register('detektProjectBaseline', DetektCreateBaselineTask) {
+    description = "Overrides current baseline."
+    ignoreFailures.set(true)
+    parallel.set(true)
+    buildUponDefaultConfig.set(true)
+    setSource(files(rootDir))
+    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+    baseline.set(file("$rootDir/config/detekt/baseline.xml"))
+    include("**/*.kt")
+    include("**/*.kts")
+    exclude("**/resources/**")
+    exclude("**/build/**")
 }
 
 kotlin {

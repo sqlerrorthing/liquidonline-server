@@ -5,6 +5,7 @@ import java.awt.Color
 
 @Component
 class Colors {
+    @Suppress("MemberNameEqualsClassName")
     private val colors = arrayOf(
         Color(30, 144, 255),
         Color(46, 204, 133),

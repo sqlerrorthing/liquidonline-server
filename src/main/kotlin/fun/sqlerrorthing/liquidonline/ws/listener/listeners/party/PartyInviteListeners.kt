@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @WebSocketMessageListener
+@Suppress("unused")
 class PartyInviteListeners(
     private val partyService: PartyService
-) {
-}
+)

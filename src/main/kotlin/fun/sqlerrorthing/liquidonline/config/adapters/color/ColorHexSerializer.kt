@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 import java.awt.Color
 
 @Component
+@Suppress("ImplicitDefaultLocale")
 class ColorHexSerializer : JsonSerializer<Color>(), RegisterInObjectMapper<Color> {
     override fun serialize(color: Color, gen: JsonGenerator, serializers: SerializerProvider) {
         val hex = String.format("%02X%02X%02X", color.red, color.green, color.blue)
