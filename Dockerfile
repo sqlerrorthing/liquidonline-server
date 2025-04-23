@@ -14,6 +14,8 @@ RUN apk add --no-cache libpq libssl3
 
 COPY --from=builder /app/build/native/nativeCompile/* /app/
 
+RUN chmod +x /app/liquidonline-server
+
 ENV SPRING_PROFILES_ACTIVE=production
 ENV POSTGRES_URL=""
 ENV POSTGRES_USERNAME=""
