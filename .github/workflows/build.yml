@@ -27,7 +27,7 @@ jobs:
         env:
           CI: true
         with:
-          arguments: genSources build
+          arguments: build
 
       # Make sure we always run this upload task,
       # because the previous step may fail if there are findings.
