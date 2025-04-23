@@ -32,6 +32,10 @@ fun UserSession.sendPacketToFriends(builder: (friend: UserSession) -> Packet) {
         }
 }
 
+fun UserSession.sendPacketToFriends(packet: Packet) {
+    sendPacketToFriends { packet }
+}
+
 fun UserSession.createPartyMember(colorPosition: Int = 0, playData: PlayDto? = null): PartyMember {
     return PartyMember.builder()
         .userSession(this)

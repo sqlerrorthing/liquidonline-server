@@ -24,7 +24,7 @@ class MainWebSocketHandler(
 
         if (packet is C2SLogin) {
             authPacketListener.authConnection(session, packet)?.let {
-                sessionStorageService.authSession(it)
+                sessionStorageService.authSessionAndNotifyUserFriends(it)
             }
         } else {
             sessionStorageService.sessionPacket(session, packet)
@@ -36,6 +36,6 @@ class MainWebSocketHandler(
     }
 
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
-        sessionStorageService.removeSessionAndNotifyOtherUsers(session)
+        sessionStorageService.removeSessionAndNotifyUserFriends(session)
     }
 }

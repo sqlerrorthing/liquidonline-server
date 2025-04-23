@@ -11,7 +11,7 @@ interface SessionStorageService {
         packet: Packet
     )
 
-    fun authSession(
+    fun authSessionAndNotifyUserFriends(
         session: UserSession
     )
 
@@ -27,7 +27,7 @@ interface SessionStorageService {
         session: WebSocketSession
     )
 
-    fun removeSessionAndNotifyOtherUsers(
+    fun removeSessionAndNotifyUserFriends(
         session: WebSocketSession
     )
 }
