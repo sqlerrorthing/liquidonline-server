@@ -23,7 +23,7 @@ jobs:
           java-version: '21'
 
       - name: Setup and build
-        uses: gradle/gradle-build-action@v3
+        uses: gradle/actions/setup-gradle@v4
         env:
           CI: true
         with:
