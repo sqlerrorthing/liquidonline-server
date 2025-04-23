@@ -2,7 +2,10 @@ package `fun`.sqlerrorthing.liquidonline.services
 
 import `fun`.sqlerrorthing.liquidonline.entities.FriendshipRequestEntity
 import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
+import `fun`.sqlerrorthing.liquidonline.exceptions.*
+import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import org.springframework.web.socket.WebSocketSession
+import kotlin.jvm.Throws
 
 interface FriendshipRequestService {
     fun findBySenderAndReceiver(
@@ -18,10 +21,9 @@ interface FriendshipRequestService {
         receiver: UserEntity
     ): List<FriendshipRequestEntity>
 
-    fun createFriendRequestAndNotifyReceiverIfOnline(
+    fun createFriendRequest(
         sender: UserEntity,
         receiver: UserEntity,
-        receiverSession: WebSocketSession?
     ): FriendshipRequestEntity
 
     fun findFriendRequest(
@@ -35,4 +37,16 @@ interface FriendshipRequestService {
     fun rejectFriendRequest(
         request: FriendshipRequestEntity
     )
+
+    @Throws(
+        FriendRequestToSelfException::class,
+        AlreadyFriendsException::class,
+        UserNotFoundException::class,
+        ReverseFriendRequestExistsException::class,
+        AlreadyRequestedException::class
+    )
+    fun sendFriendRequest(
+        user: UserEntity,
+        receiverUsername: String
+    ): FriendshipRequestEntity
 }

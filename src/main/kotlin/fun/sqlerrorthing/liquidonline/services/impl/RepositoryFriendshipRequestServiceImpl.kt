@@ -2,11 +2,13 @@ package `fun`.sqlerrorthing.liquidonline.services.impl
 
 import `fun`.sqlerrorthing.liquidonline.entities.FriendshipRequestEntity
 import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
+import `fun`.sqlerrorthing.liquidonline.exceptions.*
 import `fun`.sqlerrorthing.liquidonline.extensions.sendPacket
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CNewIncomingFriendRequest
 import `fun`.sqlerrorthing.liquidonline.repository.FriendshipRequestRepository
 import `fun`.sqlerrorthing.liquidonline.services.FriendshipRequestService
 import `fun`.sqlerrorthing.liquidonline.services.FriendshipService
+import `fun`.sqlerrorthing.liquidonline.services.UserService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -15,7 +17,8 @@ import org.springframework.web.socket.WebSocketSession
 @Service
 class RepositoryFriendshipRequestServiceImpl(
     private val friendshipRequestRepository: FriendshipRequestRepository,
-    private val friendshipService: FriendshipService
+    private val friendshipService: FriendshipService,
+    private val userService: UserService
 ): FriendshipRequestService {
     @Transactional(readOnly = true)
     override fun findBySenderAndReceiver(sender: UserEntity, receiver: UserEntity): FriendshipRequestEntity? {
@@ -33,28 +36,18 @@ class RepositoryFriendshipRequestServiceImpl(
     }
 
     @Transactional
-    override fun createFriendRequestAndNotifyReceiverIfOnline(
+    override fun createFriendRequest(
         sender: UserEntity,
         receiver: UserEntity,
-        receiverSession: WebSocketSession?
     ): FriendshipRequestEntity {
-        var request = FriendshipRequestEntity
+        return FriendshipRequestEntity
             .builder()
             .sender(sender)
             .receiver(receiver)
             .build()
-
-        request = friendshipRequestRepository.save(request)
-
-        receiverSession?.sendPacket(
-            S2CNewIncomingFriendRequest
-                .builder()
-                .from(sender.username)
-                .requestId(request.id)
-                .build()
-        )
-
-        return request
+        .let {
+            friendshipRequestRepository.save(it)
+        }
     }
 
     @Transactional(readOnly = true)
@@ -81,5 +74,31 @@ class RepositoryFriendshipRequestServiceImpl(
         request: FriendshipRequestEntity
     ) {
         friendshipRequestRepository.delete(request)
+    }
+
+    @Transactional
+    override fun sendFriendRequest(user: UserEntity, receiverUsername: String): FriendshipRequestEntity {
+        if (user.username == receiverUsername) {
+            throw FriendRequestToSelfException
+        }
+
+        val receiver = userService.findUserByUsername(receiverUsername) ?: throw UserNotFoundException
+
+        if (friendshipService.areFriends(user, receiver)) {
+            throw AlreadyFriendsException
+        }
+
+        findBySenderAndReceiver(receiver, user)?.let { request ->
+            throw ReverseFriendRequestExistsException(request, receiver)
+        }
+
+        findBySenderAndReceiver(user, receiver)?.let {
+            throw AlreadyRequestedException
+        }
+
+        return createFriendRequest(
+            user,
+            receiver
+        )
     }
 }
