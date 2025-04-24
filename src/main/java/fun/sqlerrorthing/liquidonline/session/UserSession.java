@@ -1,6 +1,7 @@
 package fun.sqlerrorthing.liquidonline.session;
 
 import fun.sqlerrorthing.liquidonline.entities.UserEntity;
+import kotlin.Pair;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +33,7 @@ public class UserSession implements Principal {
     WebSocketSession wsSession;
 
     @Nullable
-    Party activeParty;
+    Pair<Party, PartyMember> activeParty;
 
     @Override
     public String getName() {

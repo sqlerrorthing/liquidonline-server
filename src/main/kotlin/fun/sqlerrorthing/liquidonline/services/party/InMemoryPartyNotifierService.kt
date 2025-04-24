@@ -5,6 +5,7 @@ import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.*
 import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import org.springframework.stereotype.Service
+import java.util.Base64
 
 @Service
 class InMemoryPartyNotifierService : PartyNotifierService {
@@ -49,5 +50,41 @@ class InMemoryPartyNotifierService : PartyNotifierService {
                 .reason(reason)
                 .build()
         )
+    }
+
+    override fun notifyPartyMemberMinecraftUsernameUpdate(party: Party, member: PartyMember) {
+        S2CPartyMemberStatusUpdate.builder()
+            .memberId(member.id)
+            .minecraftUsername(member.userSession.minecraftUsername)
+            .build()
+        .apply {
+            party.sendPacketToMembers { partyMember ->
+                takeIf { member != partyMember }
+            }
+        }
+    }
+
+    override fun notifyPartyMemberUsernameUpdate(party: Party, member: PartyMember) {
+        S2CPartyMemberStatusUpdate.builder()
+            .memberId(member.id)
+            .username(member.userSession.user.username)
+            .build()
+        .apply {
+            party.sendPacketToMembers { partyMember ->
+                takeIf { member != partyMember }
+            }
+        }
+    }
+
+    override fun notifyPartyMemberSkinUpdate(party: Party, member: PartyMember) {
+        S2CPartyMemberStatusUpdate.builder()
+            .memberId(member.id)
+            .skin(Base64.getEncoder().encodeToString(member.userSession.skin))
+            .build()
+        .apply {
+            party.sendPacketToMembers { partyMember ->
+                takeIf { member != partyMember }
+            }
+        }
     }
 }

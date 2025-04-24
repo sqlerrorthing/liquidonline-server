@@ -55,4 +55,19 @@ interface PartyNotifierService {
         member: PartyMember,
         reason: S2CPartyKicked.Reason
     )
+
+    fun notifyPartyMemberMinecraftUsernameUpdate(
+        party: Party,
+        member: PartyMember
+    )
+
+    fun notifyPartyMemberUsernameUpdate(
+        party: Party,
+        member: PartyMember
+    )
+
+    fun notifyPartyMemberSkinUpdate(
+        party: Party,
+        member: PartyMember
+    )
 }

@@ -45,7 +45,7 @@ fun UserSession.createPartyMember(colorPosition: Int = 0, playData: PlayDto? = n
 }
 
 fun UserSession.sendPacketToPartyMembers(builder: (member: PartyMember) -> Packet) {
-    activeParty?.members?.forEach { member ->
+    activeParty?.first?.members?.forEach { member ->
        if (member.userSession.user.id != this.user.id) {
            member.sendPacket(builder(member))
        }

@@ -33,7 +33,7 @@ class InMemoryPartyServiceWithNotifierServiceImpl(
             .owner(member)
             .build()
         .apply {
-            baseMember.activeParty = this
+            baseMember.activeParty = this to member
             this.members.add(member)
             parties.add(this)
         }
@@ -62,7 +62,7 @@ class InMemoryPartyServiceWithNotifierServiceImpl(
         )
 
         party.members.add(member)
-        user.activeParty = party
+        user.activeParty = party to member
 
         partyNotifierService.notifyPartyMemberJoined(party, member)
         logger.info("User '{}' joined party '{}'", user.user.username, party.name)
