@@ -1,6 +1,7 @@
 package `fun`.sqlerrorthing.liquidonline.ws.listener.listeners
 
 import `fun`.sqlerrorthing.liquidonline.exceptions.*
+import `fun`.sqlerrorthing.liquidonline.extensions.onlineSession
 import `fun`.sqlerrorthing.liquidonline.extensions.toFriendDto
 import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.friends.C2SRespondFriendRequest
@@ -12,7 +13,6 @@ import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CRespondFriendRequ
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CStopBeingFriendsResult
 import `fun`.sqlerrorthing.liquidonline.services.friendship.FriendshipRequestService
 import `fun`.sqlerrorthing.liquidonline.services.friendship.FriendshipService
-import `fun`.sqlerrorthing.liquidonline.services.session.SessionStorageService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.ws.listener.PacketMessageListener
 import `fun`.sqlerrorthing.liquidonline.ws.listener.WebSocketMessageListener
@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component
 class FriendsListeners(
     private val friendshipService: FriendshipService,
     private val friendshipRequestService: FriendshipRequestService,
-    private val sessionStorageService: SessionStorageService,
 ) {
     @PacketMessageListener
     @Suppress("ReturnCount", "unused")
@@ -68,7 +67,7 @@ class FriendsListeners(
 
     @PacketMessageListener
     @Suppress("ReturnCount", "unused")
-    private fun stopBeingFriends(userSession: UserSession, packet: C2SStopBeingFriends): S2CStopBeingFriendsResult {
+    private fun removeFriend(userSession: UserSession, packet: C2SStopBeingFriends): S2CStopBeingFriendsResult {
         return try {
             friendshipService.brokeFriendship(userSession, packet.friendId)
 
@@ -93,45 +92,39 @@ class FriendsListeners(
     @PacketMessageListener
     @Suppress("unused")
     private fun respondFriendRequest(userSession: UserSession, packet: C2SRespondFriendRequest): Packet {
-        val request = friendshipRequestService.findFriendRequest(packet.requestId)
-            ?: return S2CRespondFriendRequestResult.builder()
-                .status(S2CRespondFriendRequestResult.Status.REQUEST_NOT_FOUND)
-                .build()
+        return try {
+            when (packet.status) {
+                C2SRespondFriendRequest.Status.ACCEPTED -> {
+                    val request =
+                        friendshipRequestService.respondAcceptFriendRequest(userSession, packet.requestId)
 
-        val isReceiver = request.receiver == userSession.user
-        val isSender = request.sender == userSession.user
+                    S2CRespondFriendRequestResult.builder()
+                        .status(S2CRespondFriendRequestResult.Status.SUCCESS)
+                        .friend(request.sender.onlineSession?.toFriendDto() ?: request.sender.toFriendDto())
+                        .build()
+                }
 
-        if (!isReceiver) {
-            if (isSender && packet.status == C2SRespondFriendRequest.Status.REJECT) {
-                friendshipRequestService.rejectFriendRequestBySender(request)
+                C2SRespondFriendRequest.Status.REJECT -> {
+                    val (request, isRejectedBySender) =
+                        friendshipRequestService.respondRejectFriendRequest(userSession, packet.requestId)
 
-                return S2COutgoingFriendRequest.builder()
-                    .requestId(request.id)
-                    .to(request.receiver.username)
-                    .status(S2COutgoingFriendRequest.Status.REJECT)
-                    .build()
-            }
-
-            return S2CRespondFriendRequestResult.builder()
-                .status(S2CRespondFriendRequestResult.Status.REQUEST_NOT_FOUND)
-                .build()
-        }
-
-
-        when (packet.status) {
-            C2SRespondFriendRequest.Status.ACCEPTED -> friendshipRequestService.acceptFriendRequest(request)
-            C2SRespondFriendRequest.Status.REJECT -> friendshipRequestService.rejectFriendRequest(request)
-        }
-
-        return S2CRespondFriendRequestResult.builder()
-            .status(S2CRespondFriendRequestResult.Status.SUCCESS).apply {
-                if (packet.status == C2SRespondFriendRequest.Status.ACCEPTED) {
-                    friend(
-                        sessionStorageService.findUserSession(request.sender)?.toFriendDto()
-                            ?: request.sender.toFriendDto()
-                    )
+                    if (isRejectedBySender) {
+                        S2COutgoingFriendRequest.builder()
+                            .requestId(request.id)
+                            .to(request.receiver.username)
+                            .status(S2COutgoingFriendRequest.Status.REJECT)
+                            .build()
+                    } else {
+                        S2CRespondFriendRequestResult.builder()
+                            .status(S2CRespondFriendRequestResult.Status.SUCCESS)
+                            .build()
+                    }
                 }
             }
-            .build()
+        } catch (_: FriendRequestNotFoundException) {
+            S2CRespondFriendRequestResult.builder()
+                .status(S2CRespondFriendRequestResult.Status.REQUEST_NOT_FOUND)
+                .build()
+        }
     }
 }

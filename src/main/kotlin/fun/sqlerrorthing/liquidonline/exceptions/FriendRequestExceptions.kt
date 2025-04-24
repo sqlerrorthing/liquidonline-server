@@ -2,7 +2,6 @@ package `fun`.sqlerrorthing.liquidonline.exceptions
 
 import `fun`.sqlerrorthing.liquidonline.entities.FriendshipRequestEntity
 import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
-import java.lang.RuntimeException
 
 object FriendRequestToSelfException : RuntimeException() {
     private fun readResolve(): Any = FriendRequestToSelfException
@@ -19,4 +18,8 @@ class ReverseFriendRequestExistsException(
 
 object AlreadyRequestedException : RuntimeException() {
     private fun readResolve(): Any = AlreadyRequestedException
+}
+
+object FriendRequestNotFoundException : RuntimeException() {
+    private fun readResolve(): Any = FriendRequestNotFoundException
 }

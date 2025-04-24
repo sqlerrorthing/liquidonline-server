@@ -6,11 +6,13 @@ import `fun`.sqlerrorthing.liquidonline.exceptions.*
 import `fun`.sqlerrorthing.liquidonline.extensions.onlineSession
 import `fun`.sqlerrorthing.liquidonline.repository.FriendshipRequestRepository
 import `fun`.sqlerrorthing.liquidonline.services.user.UserService
+import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Suppress("TooManyFunctions")
 class RepositoryFriendshipRequestServiceImpl(
     private val friendshipRequestRepository: FriendshipRequestRepository,
     private val friendshipService: FriendshipService,
@@ -118,5 +120,40 @@ class RepositoryFriendshipRequestServiceImpl(
     override fun rejectFriendRequestBySender(request: FriendshipRequestEntity) {
         friendshipRequestRepository.delete(request)
         friendshipRequestsNotifierService.notifyIncomingFriendRequestRejectedIfReceiverOnline(request)
+    }
+
+    @Transactional
+    override fun respondRejectFriendRequest(
+        user: UserSession,
+        requestId: Int,
+    ): Pair<FriendshipRequestEntity, Boolean> {
+        val request = findFriendRequest(requestId)
+            ?: throw FriendRequestNotFoundException
+
+        if (request.receiver != user) {
+            if (request.sender == user) {
+                rejectFriendRequestBySender(request)
+                return request to true
+            }
+
+            throw FriendRequestNotFoundException
+        }
+
+        rejectFriendRequest(request)
+        return request to false
+    }
+
+    @Transactional
+    override fun respondAcceptFriendRequest(
+        user: UserSession,
+        requestId: Int
+    ): FriendshipRequestEntity {
+        val request = findFriendRequest(requestId)
+            ?.takeIf { it.receiver == user.user }
+            ?: throw FriendRequestNotFoundException
+
+        return request.apply {
+            acceptFriendRequest(request)
+        }
     }
 }
