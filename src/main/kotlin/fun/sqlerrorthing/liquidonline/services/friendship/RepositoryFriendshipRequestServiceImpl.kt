@@ -3,6 +3,7 @@ package `fun`.sqlerrorthing.liquidonline.services.friendship
 import `fun`.sqlerrorthing.liquidonline.entities.FriendshipRequestEntity
 import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
 import `fun`.sqlerrorthing.liquidonline.exceptions.*
+import `fun`.sqlerrorthing.liquidonline.extensions.onlineSession
 import `fun`.sqlerrorthing.liquidonline.repository.FriendshipRequestRepository
 import `fun`.sqlerrorthing.liquidonline.services.user.UserService
 import org.springframework.data.repository.findByIdOrNull
@@ -13,7 +14,8 @@ import org.springframework.transaction.annotation.Transactional
 class RepositoryFriendshipRequestServiceImpl(
     private val friendshipRequestRepository: FriendshipRequestRepository,
     private val friendshipService: FriendshipService,
-    private val userService: UserService
+    private val userService: UserService,
+    private val friendshipRequestsNotifierService: FriendshipRequestsNotifierService
 ): FriendshipRequestService {
     @Transactional(readOnly = true)
     override fun findBySenderAndReceiver(sender: UserEntity, receiver: UserEntity): FriendshipRequestEntity? {
@@ -61,6 +63,14 @@ class RepositoryFriendshipRequestServiceImpl(
             receiver = request.receiver,
         )
 
+        request.sender.onlineSession?.let {
+            friendshipRequestsNotifierService.notifyOutgoingFriendRequestWasAcceptedIfReceiverOnline(
+                request.id,
+                request.receiver,
+                it
+            )
+        }
+
         friendshipRequestRepository.delete(request)
     }
 
@@ -68,6 +78,10 @@ class RepositoryFriendshipRequestServiceImpl(
     override fun rejectFriendRequest(
         request: FriendshipRequestEntity
     ) {
+        friendshipRequestsNotifierService.notifyOutgoingFriendRequestWasRejectedIfSenderOnline(
+            request
+        )
+
         friendshipRequestRepository.delete(request)
     }
 
@@ -94,6 +108,15 @@ class RepositoryFriendshipRequestServiceImpl(
         return createFriendRequest(
             user,
             receiver
-        )
+        ).apply {
+            friendshipRequestsNotifierService.notifyReceiverNewFriendRequestIfReceiverOnline(
+                this
+            )
+        }
+    }
+
+    override fun rejectFriendRequestBySender(request: FriendshipRequestEntity) {
+        friendshipRequestRepository.delete(request)
+        friendshipRequestsNotifierService.notifyIncomingFriendRequestRejectedIfReceiverOnline(request)
     }
 }

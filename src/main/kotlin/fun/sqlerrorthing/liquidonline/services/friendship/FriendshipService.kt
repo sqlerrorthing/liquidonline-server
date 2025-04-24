@@ -35,5 +35,5 @@ interface FriendshipService {
     fun brokeFriendship(
         requester: UserSession,
         friendId: Int
-    ): UserEntity
+    )
 }

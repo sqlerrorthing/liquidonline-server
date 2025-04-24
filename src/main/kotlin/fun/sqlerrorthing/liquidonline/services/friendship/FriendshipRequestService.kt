@@ -35,6 +35,10 @@ interface FriendshipRequestService {
         request: FriendshipRequestEntity
     )
 
+    fun rejectFriendRequestBySender(
+        request: FriendshipRequestEntity
+    )
+
     @Throws(
         FriendRequestToSelfException::class,
         AlreadyFriendsException::class,
