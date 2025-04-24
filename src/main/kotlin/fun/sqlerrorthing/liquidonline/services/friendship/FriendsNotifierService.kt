@@ -1,5 +1,6 @@
 package `fun`.sqlerrorthing.liquidonline.services.friendship
 
+import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 
 interface FriendsNotifierService {
@@ -25,5 +26,15 @@ interface FriendsNotifierService {
 
     fun notifyFriendsWithServerUpdate(
         updatedSession: UserSession
+    )
+
+    fun notifyFriendWithFriendshipBroken(
+        friend: UserSession,
+        requester: UserSession
+    )
+
+    fun notifyFriendWithFriendshipBrokenIfFriendOnline(
+        friend: UserEntity,
+        requester: UserSession
     )
 }

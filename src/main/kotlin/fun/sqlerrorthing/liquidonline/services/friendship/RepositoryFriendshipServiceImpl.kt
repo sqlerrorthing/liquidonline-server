@@ -2,13 +2,18 @@ package `fun`.sqlerrorthing.liquidonline.services.friendship
 
 import `fun`.sqlerrorthing.liquidonline.entities.FriendshipEntity
 import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
+import `fun`.sqlerrorthing.liquidonline.exceptions.UserNotFoundException
+import `fun`.sqlerrorthing.liquidonline.exceptions.WasNoFriendship
 import `fun`.sqlerrorthing.liquidonline.repository.FriendshipRepository
+import `fun`.sqlerrorthing.liquidonline.services.user.UserService
+import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 class RepositoryFriendshipServiceImpl(
     private val friendshipRepository: FriendshipRepository,
+    private val userService: UserService,
 ): FriendshipService {
     @Transactional(readOnly = true)
     override fun findUserFriends(user: UserEntity): List<UserEntity> {
@@ -35,7 +40,23 @@ class RepositoryFriendshipServiceImpl(
         .apply { friendshipRepository.save(this) }
     }
 
+    @Transactional
     override fun brokeFriendship(friendship: FriendshipEntity) {
         friendshipRepository.delete(friendship)
+    }
+
+    @Transactional
+    override fun brokeFriendship(
+        requester: UserSession,
+        friendId: Int
+    ): UserEntity {
+        val friend = userService.findUserById(friendId) ?: throw UserNotFoundException
+
+        val friendship = findFriendship(requester.user, friend)
+            ?: throw WasNoFriendship
+
+        brokeFriendship(friendship)
+
+        return friend
     }
 }

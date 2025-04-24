@@ -1,9 +1,13 @@
 package `fun`.sqlerrorthing.liquidonline.services.friendship
 
+import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
+import `fun`.sqlerrorthing.liquidonline.extensions.onlineSession
+import `fun`.sqlerrorthing.liquidonline.extensions.sendPacket
 import `fun`.sqlerrorthing.liquidonline.extensions.sendPacketToFriends
 import `fun`.sqlerrorthing.liquidonline.extensions.toFriendDto
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriendJoined
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriendLeaved
+import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriendShipBroken
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriendStatusUpdate
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import org.springframework.stereotype.Component
@@ -65,5 +69,28 @@ class InMemoryFriendsNotifierServiceImpl: FriendsNotifierService {
                 .server(updatedSession.server)
                 .build()
         )
+    }
+
+    override fun notifyFriendWithFriendshipBroken(
+        friend: UserSession,
+        requester: UserSession
+    ) {
+        friend.sendPacket(
+            S2CFriendShipBroken.builder()
+                .with(requester.user.id)
+                .build()
+        )
+    }
+
+    override fun notifyFriendWithFriendshipBrokenIfFriendOnline(
+        friend: UserEntity,
+        requester: UserSession
+    ) {
+        friend.onlineSession?.let {
+            notifyFriendWithFriendshipBroken(
+                it,
+                requester
+            )
+        }
     }
 }
