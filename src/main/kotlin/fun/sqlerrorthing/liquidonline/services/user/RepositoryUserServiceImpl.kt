@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class RepositoryUserService(
+class RepositoryUserServiceImpl(
     private val repository: UsersRepository
 ): UserService {
     @Transactional(readOnly = true)
