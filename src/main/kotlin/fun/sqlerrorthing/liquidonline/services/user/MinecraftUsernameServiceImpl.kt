@@ -13,6 +13,7 @@ class MinecraftUsernameServiceImpl(
     override fun updateUsername(session: UserSession, newUsername: String): Boolean {
         return if (newUsername != session.minecraftUsername) {
             session.minecraftUsername = newUsername
+
             friendsNotifierService.notifyFriendsWithMinecraftUsernameUpdate(session)
 
             session.activeParty?.let { (party, member) ->

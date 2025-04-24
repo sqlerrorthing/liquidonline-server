@@ -10,11 +10,13 @@ import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriendLeaved
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriendShipBroken
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriendStatusUpdate
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import java.util.*
 
 @Component
 class InMemoryFriendsNotifierServiceImpl: FriendsNotifierService {
+    @Async
     override fun notifyFriendJoined(joinedSession: UserSession) {
         joinedSession.user.toFriendDto().also {
             joinedSession.sendPacketToFriends(
@@ -25,6 +27,7 @@ class InMemoryFriendsNotifierServiceImpl: FriendsNotifierService {
         }
     }
 
+    @Async
     override fun notifyFriendLeaved(disconnectedSession: UserSession) {
         disconnectedSession.user.toFriendDto().also {
             disconnectedSession.sendPacketToFriends(
@@ -35,6 +38,7 @@ class InMemoryFriendsNotifierServiceImpl: FriendsNotifierService {
         }
     }
 
+    @Async
     override fun notifyFriendsWithUsernameUpdate(updatedSession: UserSession) {
         updatedSession.sendPacketToFriends(
             S2CFriendStatusUpdate.builder()
@@ -44,6 +48,7 @@ class InMemoryFriendsNotifierServiceImpl: FriendsNotifierService {
         )
     }
 
+    @Async
     override fun notifyFriendsWithMinecraftUsernameUpdate(updatedSession: UserSession) {
         updatedSession.sendPacketToFriends(
             S2CFriendStatusUpdate.builder()
@@ -53,6 +58,7 @@ class InMemoryFriendsNotifierServiceImpl: FriendsNotifierService {
         )
     }
 
+    @Async
     override fun notifyFriendsWithSkinUpdate(updatedSession: UserSession) {
         updatedSession.sendPacketToFriends(
             S2CFriendStatusUpdate.builder()
@@ -62,6 +68,7 @@ class InMemoryFriendsNotifierServiceImpl: FriendsNotifierService {
         )
     }
 
+    @Async
     override fun notifyFriendsWithServerUpdate(updatedSession: UserSession) {
         updatedSession.sendPacketToFriends(
             S2CFriendStatusUpdate.builder()
@@ -71,6 +78,7 @@ class InMemoryFriendsNotifierServiceImpl: FriendsNotifierService {
         )
     }
 
+    @Async
     override fun notifyFriendWithFriendshipBroken(
         friend: UserSession,
         requester: UserSession
@@ -82,6 +90,7 @@ class InMemoryFriendsNotifierServiceImpl: FriendsNotifierService {
         )
     }
 
+    @Async
     override fun notifyFriendWithFriendshipBrokenIfFriendOnline(
         friend: UserEntity,
         requester: UserSession

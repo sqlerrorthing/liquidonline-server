@@ -15,7 +15,7 @@ class PartySyncSessionTasks : SessionTask(Duration.ofSeconds(2)) {
         session.activeParty.let {
             session.sendPacket(
                 S2CPartySync.builder()
-                    .party(it?.toPartyDto())
+                    .party(it?.first?.toPartyDto())
                     .build()
             )
         }

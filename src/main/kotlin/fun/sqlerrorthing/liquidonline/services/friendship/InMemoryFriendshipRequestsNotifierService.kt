@@ -9,10 +9,12 @@ import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CIncomingFriendReq
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CNewIncomingFriendRequest
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2COutgoingFriendRequest
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 
 @Service
 class InMemoryFriendshipRequestsNotifierService: FriendshipRequestsNotifierService {
+    @Async
     override fun notifyOutgoingFriendRequestWasAccepted(
         requestId: Int,
         receiver: UserSession,
@@ -28,6 +30,7 @@ class InMemoryFriendshipRequestsNotifierService: FriendshipRequestsNotifierServi
         )
     }
 
+    @Async
     override fun notifyOutgoingFriendRequestWasAcceptedIfReceiverOnline(
         requestId: Int,
         receiver: UserEntity,
@@ -42,6 +45,7 @@ class InMemoryFriendshipRequestsNotifierService: FriendshipRequestsNotifierServi
         }
     }
 
+    @Async
     override fun notifyOutgoingFriendRequestWasRejected(
         requestId: Int,
         sender: UserSession,
@@ -56,6 +60,7 @@ class InMemoryFriendshipRequestsNotifierService: FriendshipRequestsNotifierServi
         )
     }
 
+    @Async
     override fun notifyOutgoingFriendRequestWasRejectedIfSenderOnline(
         request: FriendshipRequestEntity,
     ) {
@@ -68,6 +73,7 @@ class InMemoryFriendshipRequestsNotifierService: FriendshipRequestsNotifierServi
         }
     }
 
+    @Async
     override fun notifyReceiverNewFriendRequestIfReceiverOnline(requestEntity: FriendshipRequestEntity) {
         requestEntity.receiver.onlineSession?.sendPacket(
             S2CNewIncomingFriendRequest.builder()
@@ -77,6 +83,7 @@ class InMemoryFriendshipRequestsNotifierService: FriendshipRequestsNotifierServi
         )
     }
 
+    @Async
     override fun notifyIncomingFriendRequestRejected(
         requestId: Int,
         receiver: UserSession,
@@ -90,6 +97,7 @@ class InMemoryFriendshipRequestsNotifierService: FriendshipRequestsNotifierServi
         )
     }
 
+    @Async
     override fun notifyIncomingFriendRequestRejectedIfReceiverOnline(request: FriendshipRequestEntity) {
         request.receiver.onlineSession?.let {
             notifyIncomingFriendRequestRejected(
