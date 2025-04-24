@@ -8,10 +8,13 @@ import org.springframework.stereotype.Service
 class MinecraftServerServiceImpl(
     private val friendsNotifierService: FriendsNotifierService,
 ): MinecraftServerService {
-    override fun updateServer(session: UserSession, newServer: String?) {
-        if (newServer != session.server) {
+    override fun updateServer(session: UserSession, newServer: String?): Boolean {
+        return if (newServer != session.server) {
             session.server = newServer
             friendsNotifierService.notifyFriendsWithServerUpdate(session)
+            true
+        } else {
+            false
         }
     }
 }

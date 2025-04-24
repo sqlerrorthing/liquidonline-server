@@ -8,10 +8,13 @@ import org.springframework.stereotype.Service
 class MinecraftUsernameServiceImpl(
     private val friendsNotifierService: FriendsNotifierService
 ): MinecraftUsernameService {
-    override fun updateUsername(session: UserSession, newUsername: String) {
-        if (newUsername != session.minecraftUsername) {
+    override fun updateUsername(session: UserSession, newUsername: String): Boolean {
+        return if (newUsername != session.minecraftUsername) {
             session.minecraftUsername = newUsername
             friendsNotifierService.notifyFriendsWithMinecraftUsernameUpdate(session)
+            true
+        } else {
+            false
         }
     }
 }

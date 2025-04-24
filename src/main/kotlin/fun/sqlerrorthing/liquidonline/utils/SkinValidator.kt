@@ -19,13 +19,17 @@ class SkinValidator {
      */
     fun validateHead(head: String): ByteArray? {
         return runCatching {
-            val imageBytes = Base64.getDecoder().decode(head)
+            validateHead(Base64.getDecoder().decode(head))
+        }.getOrNull()
+    }
 
-            if (!imageBytes.take(8).toByteArray().contentEquals(PNG_SIGNATURE)) {
+    fun validateHead(headBytes: ByteArray): ByteArray? {
+        return runCatching {
+            if (!headBytes.take(8).toByteArray().contentEquals(PNG_SIGNATURE)) {
                 return null
             }
 
-            val image: BufferedImage = ImageIO.read(ByteArrayInputStream(imageBytes)) ?: return null
+            val image: BufferedImage = ImageIO.read(ByteArrayInputStream(headBytes)) ?: return null
 
             if (image.width != 16 || image.height != 16) {
                 return null
