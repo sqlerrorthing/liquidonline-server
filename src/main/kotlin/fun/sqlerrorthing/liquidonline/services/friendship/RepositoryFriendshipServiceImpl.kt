@@ -1,9 +1,8 @@
-package `fun`.sqlerrorthing.liquidonline.services.impl
+package `fun`.sqlerrorthing.liquidonline.services.friendship
 
 import `fun`.sqlerrorthing.liquidonline.entities.FriendshipEntity
 import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
 import `fun`.sqlerrorthing.liquidonline.repository.FriendshipRepository
-import `fun`.sqlerrorthing.liquidonline.services.FriendshipService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

@@ -1,18 +1,13 @@
-package `fun`.sqlerrorthing.liquidonline.services.impl
+package `fun`.sqlerrorthing.liquidonline.services.friendship
 
 import `fun`.sqlerrorthing.liquidonline.entities.FriendshipRequestEntity
 import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
 import `fun`.sqlerrorthing.liquidonline.exceptions.*
-import `fun`.sqlerrorthing.liquidonline.extensions.sendPacket
-import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CNewIncomingFriendRequest
 import `fun`.sqlerrorthing.liquidonline.repository.FriendshipRequestRepository
-import `fun`.sqlerrorthing.liquidonline.services.FriendshipRequestService
-import `fun`.sqlerrorthing.liquidonline.services.FriendshipService
-import `fun`.sqlerrorthing.liquidonline.services.UserService
+import `fun`.sqlerrorthing.liquidonline.services.user.UserService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.socket.WebSocketSession
 
 @Service
 class RepositoryFriendshipRequestServiceImpl(

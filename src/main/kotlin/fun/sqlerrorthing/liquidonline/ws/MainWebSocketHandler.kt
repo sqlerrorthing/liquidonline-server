@@ -3,8 +3,8 @@ package `fun`.sqlerrorthing.liquidonline.ws
 import com.fasterxml.jackson.databind.ObjectMapper
 import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.login.C2SLogin
-import `fun`.sqlerrorthing.liquidonline.services.AuthService
-import `fun`.sqlerrorthing.liquidonline.services.SessionStorageService
+import `fun`.sqlerrorthing.liquidonline.services.auth.AuthService
+import `fun`.sqlerrorthing.liquidonline.services.session.SessionStorageService
 import jakarta.validation.Validator
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.CloseStatus

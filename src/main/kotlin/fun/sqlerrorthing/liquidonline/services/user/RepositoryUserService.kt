@@ -1,8 +1,7 @@
-package `fun`.sqlerrorthing.liquidonline.services.impl
+package `fun`.sqlerrorthing.liquidonline.services.user
 
 import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
 import `fun`.sqlerrorthing.liquidonline.repository.UsersRepository
-import `fun`.sqlerrorthing.liquidonline.services.UserService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

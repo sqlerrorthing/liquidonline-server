@@ -1,4 +1,4 @@
-package `fun`.sqlerrorthing.liquidonline.services
+package `fun`.sqlerrorthing.liquidonline.services.friendship
 
 import `fun`.sqlerrorthing.liquidonline.entities.FriendshipEntity
 import `fun`.sqlerrorthing.liquidonline.entities.UserEntity

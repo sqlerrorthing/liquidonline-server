@@ -1,7 +1,6 @@
-package `fun`.sqlerrorthing.liquidonline.services.impl
+package `fun`.sqlerrorthing.liquidonline.services.user
 
-import `fun`.sqlerrorthing.liquidonline.services.FriendsNotifierService
-import `fun`.sqlerrorthing.liquidonline.services.MinecraftSkinService
+import `fun`.sqlerrorthing.liquidonline.services.friendship.FriendsNotifierService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.utils.SkinValidator
 import org.springframework.stereotype.Service

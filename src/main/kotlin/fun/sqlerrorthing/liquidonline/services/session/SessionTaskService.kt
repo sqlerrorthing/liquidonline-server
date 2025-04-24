@@ -1,4 +1,4 @@
-package `fun`.sqlerrorthing.liquidonline.services
+package `fun`.sqlerrorthing.liquidonline.services.session
 
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 

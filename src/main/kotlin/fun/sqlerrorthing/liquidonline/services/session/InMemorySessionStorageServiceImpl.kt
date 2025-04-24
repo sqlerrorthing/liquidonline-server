@@ -1,9 +1,10 @@
-package `fun`.sqlerrorthing.liquidonline.services.impl
+package `fun`.sqlerrorthing.liquidonline.services.session
 
 import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
 import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.login.C2SLogin
-import `fun`.sqlerrorthing.liquidonline.services.*
+import `fun`.sqlerrorthing.liquidonline.services.friendship.FriendsNotifierService
+import `fun`.sqlerrorthing.liquidonline.services.user.UserService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.ws.listener.PacketListenerRegistrar
 import org.springframework.context.annotation.Lazy

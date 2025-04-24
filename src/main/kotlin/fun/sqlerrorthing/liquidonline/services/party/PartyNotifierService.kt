@@ -1,4 +1,4 @@
-package `fun`.sqlerrorthing.liquidonline.services
+package `fun`.sqlerrorthing.liquidonline.services.party
 
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartyKicked
 import `fun`.sqlerrorthing.liquidonline.session.Party

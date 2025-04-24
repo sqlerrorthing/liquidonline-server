@@ -3,9 +3,9 @@ package `fun`.sqlerrorthing.liquidonline.ws.listener.listeners
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.update.C2SUpdateMinecraftUsername
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.update.C2SUpdatePlayingServer
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.update.C2SUpdateSkin
-import `fun`.sqlerrorthing.liquidonline.services.MinecraftServerService
-import `fun`.sqlerrorthing.liquidonline.services.MinecraftSkinService
-import `fun`.sqlerrorthing.liquidonline.services.MinecraftUsernameService
+import `fun`.sqlerrorthing.liquidonline.services.user.MinecraftServerService
+import `fun`.sqlerrorthing.liquidonline.services.user.MinecraftSkinService
+import `fun`.sqlerrorthing.liquidonline.services.user.MinecraftUsernameService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.ws.listener.PacketMessageListener
 import `fun`.sqlerrorthing.liquidonline.ws.listener.WebSocketMessageListener

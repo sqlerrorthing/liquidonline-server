@@ -5,8 +5,8 @@ import `fun`.sqlerrorthing.liquidonline.dto.UserAccountDto
 import `fun`.sqlerrorthing.liquidonline.dto.play.PlayDto
 import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
 import `fun`.sqlerrorthing.liquidonline.packets.Packet
-import `fun`.sqlerrorthing.liquidonline.services.FriendshipService
-import `fun`.sqlerrorthing.liquidonline.services.SessionStorageService
+import `fun`.sqlerrorthing.liquidonline.services.friendship.FriendshipService
+import `fun`.sqlerrorthing.liquidonline.services.session.SessionStorageService
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.utils.Colors

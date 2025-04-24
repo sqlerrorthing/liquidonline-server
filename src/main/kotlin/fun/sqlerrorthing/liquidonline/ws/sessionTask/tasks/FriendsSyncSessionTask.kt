@@ -4,8 +4,8 @@ import `fun`.sqlerrorthing.liquidonline.dto.FriendDto
 import `fun`.sqlerrorthing.liquidonline.extensions.sendPacket
 import `fun`.sqlerrorthing.liquidonline.extensions.toFriendDto
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriends
-import `fun`.sqlerrorthing.liquidonline.services.FriendshipService
-import `fun`.sqlerrorthing.liquidonline.services.SessionStorageService
+import `fun`.sqlerrorthing.liquidonline.services.friendship.FriendshipService
+import `fun`.sqlerrorthing.liquidonline.services.session.SessionStorageService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.ws.sessionTask.SessionTask
 import org.springframework.stereotype.Component

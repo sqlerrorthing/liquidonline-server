@@ -3,7 +3,7 @@ package `fun`.sqlerrorthing.liquidonline.ws.sessionTask.tasks
 import `fun`.sqlerrorthing.liquidonline.dto.FriendRequestDto
 import `fun`.sqlerrorthing.liquidonline.extensions.sendPacket
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriendRequests
-import `fun`.sqlerrorthing.liquidonline.services.FriendshipRequestService
+import `fun`.sqlerrorthing.liquidonline.services.friendship.FriendshipRequestService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.ws.sessionTask.SessionTask
 import org.springframework.stereotype.Component

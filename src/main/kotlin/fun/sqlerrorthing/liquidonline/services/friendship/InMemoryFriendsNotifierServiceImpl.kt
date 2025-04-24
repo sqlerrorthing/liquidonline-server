@@ -1,14 +1,13 @@
-package `fun`.sqlerrorthing.liquidonline.services.impl
+package `fun`.sqlerrorthing.liquidonline.services.friendship
 
 import `fun`.sqlerrorthing.liquidonline.extensions.sendPacketToFriends
 import `fun`.sqlerrorthing.liquidonline.extensions.toFriendDto
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriendJoined
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriendLeaved
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriendStatusUpdate
-import `fun`.sqlerrorthing.liquidonline.services.FriendsNotifierService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import org.springframework.stereotype.Component
-import java.util.Base64
+import java.util.*
 
 @Component
 class InMemoryFriendsNotifierServiceImpl: FriendsNotifierService {

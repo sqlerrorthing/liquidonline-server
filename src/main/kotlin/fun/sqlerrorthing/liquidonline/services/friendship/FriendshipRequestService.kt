@@ -1,11 +1,8 @@
-package `fun`.sqlerrorthing.liquidonline.services
+package `fun`.sqlerrorthing.liquidonline.services.friendship
 
 import `fun`.sqlerrorthing.liquidonline.entities.FriendshipRequestEntity
 import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
 import `fun`.sqlerrorthing.liquidonline.exceptions.*
-import `fun`.sqlerrorthing.liquidonline.session.UserSession
-import org.springframework.web.socket.WebSocketSession
-import kotlin.jvm.Throws
 
 interface FriendshipRequestService {
     fun findBySenderAndReceiver(

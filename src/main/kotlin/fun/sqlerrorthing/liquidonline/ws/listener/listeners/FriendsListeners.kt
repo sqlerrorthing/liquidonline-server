@@ -8,10 +8,10 @@ import `fun`.sqlerrorthing.liquidonline.packets.c2s.friends.C2SRespondFriendRequ
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.friends.C2SSendFriendRequest
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.friends.C2SStopBeingFriends
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.*
-import `fun`.sqlerrorthing.liquidonline.services.FriendshipRequestService
-import `fun`.sqlerrorthing.liquidonline.services.FriendshipService
-import `fun`.sqlerrorthing.liquidonline.services.SessionStorageService
-import `fun`.sqlerrorthing.liquidonline.services.UserService
+import `fun`.sqlerrorthing.liquidonline.services.friendship.FriendshipRequestService
+import `fun`.sqlerrorthing.liquidonline.services.friendship.FriendshipService
+import `fun`.sqlerrorthing.liquidonline.services.session.SessionStorageService
+import `fun`.sqlerrorthing.liquidonline.services.user.UserService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.ws.listener.PacketMessageListener
 import `fun`.sqlerrorthing.liquidonline.ws.listener.WebSocketMessageListener

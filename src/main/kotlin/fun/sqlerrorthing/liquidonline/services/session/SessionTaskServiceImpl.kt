@@ -1,6 +1,5 @@
-package `fun`.sqlerrorthing.liquidonline.services.impl
+package `fun`.sqlerrorthing.liquidonline.services.session
 
-import `fun`.sqlerrorthing.liquidonline.services.SessionTaskService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.ws.sessionTask.SessionTask
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
