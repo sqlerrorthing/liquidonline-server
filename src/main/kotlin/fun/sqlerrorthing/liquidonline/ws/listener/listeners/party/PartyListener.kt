@@ -29,7 +29,7 @@ class PartyListener(
                 .result(S2CCreatePartyResult.Result.CREATED)
                 .party(party.toPartyDto())
                 .build()
-        } catch (ex: AlreadyInPartyException) {
+        } catch (_: AlreadyInPartyException) {
             S2CCreatePartyResult.builder()
                 .result(S2CCreatePartyResult.Result.ALREADY_IN_PARTY)
                 .build()
