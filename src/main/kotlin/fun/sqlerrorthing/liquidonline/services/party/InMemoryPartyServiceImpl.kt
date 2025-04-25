@@ -1,6 +1,7 @@
 package `fun`.sqlerrorthing.liquidonline.services.party
 
 import `fun`.sqlerrorthing.liquidonline.dto.play.PlayDto
+import `fun`.sqlerrorthing.liquidonline.exceptions.*
 import `fun`.sqlerrorthing.liquidonline.extensions.createPartyMember
 import `fun`.sqlerrorthing.liquidonline.extensions.hasMembers
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartyKicked
@@ -25,6 +26,10 @@ class InMemoryPartyServiceImpl(
         baseMember: UserSession,
         playData: PlayDto?,
     ): Party {
+        if (baseMember.activeParty != null) {
+            throw AlreadyInPartyException
+        }
+
         val member = baseMember.createPartyMember(playData = playData)
 
         val party = Party.builder()
@@ -47,13 +52,12 @@ class InMemoryPartyServiceImpl(
         user: UserSession,
         playData: PlayDto?
     ): PartyMember {
-        require(party.hasMembers()) {
-            "At least one participant must be in the party. " +
-            "A party without a single participant cannot exist."
+        if (!party.hasMembers()) {
+            throw PartyHasNoMembers
         }
 
-        require(user.activeParty != party) {
-            "User is already in this party"
+        if (user.activeParty?.first == party) {
+            throw AlreadyInThisPartyException
         }
 
         val member = user.createPartyMember(
@@ -69,12 +73,21 @@ class InMemoryPartyServiceImpl(
         return member
     }
 
-    override fun disbandmentNotifyPartyMembers(
+    override fun disbandPartyRequested(
+        party: Party,
+        requester: PartyMember
+    ) {
+        if (party.owner != requester) {
+            throw NoEnoughPartyPermissions
+        }
+
+        disbandParty(party)
+    }
+
+    override fun disbandParty(
         party: Party
     ) {
-        party.members.forEach {
-            partyNotifierService.notifyKickedMember(it, S2CPartyKicked.Reason.DISBANDED)
-        }
+        partyNotifierService.notifyPartyMembersPartyDisband(party)
 
         logger.info("Party '{}' disbanded by owner '{}'", party.name, party.owner.userSession.user.username)
         removeParty(party)
@@ -90,12 +103,13 @@ class InMemoryPartyServiceImpl(
         logger.info("User '{}' was kicked from party '{}'", member.userSession.user.username, party.name)
     }
 
-    fun removePartyMember(
+
+    override fun removePartyMember(
         party: Party,
         member: PartyMember,
     ) {
-        require(member.userSession.activeParty == party) {
-            "The user is not a member of this party"
+        if (party.members.none { it == member }) {
+            throw MemberInAnotherPartyException
         }
 
         val wasOwner = party.owner == member
@@ -126,8 +140,8 @@ class InMemoryPartyServiceImpl(
         newOwner: PartyMember
     ) {
         party.owner = newOwner
-        partyNotifierService.notifyPartyOwnerTransferred(party, newOwner)
 
+        partyNotifierService.notifyPartyOwnerTransferred(party, newOwner)
         logger.info("Ownership of party '{}' transferred to '{}'", party.name, newOwner.userSession.user.username)
     }
 

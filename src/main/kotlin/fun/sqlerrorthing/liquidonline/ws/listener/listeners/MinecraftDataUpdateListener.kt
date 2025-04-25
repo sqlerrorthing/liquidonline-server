@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @WebSocketMessageListener
-class MinecraftDataUpdateListeners(
+class MinecraftDataUpdateListener(
     private val minecraftUsernameService: MinecraftUsernameService,
     private val minecraftServerService: MinecraftServerService,
     private val minecraftSkinService: MinecraftSkinService

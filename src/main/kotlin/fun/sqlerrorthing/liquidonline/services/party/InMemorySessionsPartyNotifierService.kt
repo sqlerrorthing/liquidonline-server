@@ -52,6 +52,14 @@ class InMemorySessionsPartyNotifierService : PartyNotifierService {
         )
     }
 
+    override fun notifyPartyMembersPartyDisband(party: Party) {
+        party.sendPacketToMembers(
+            S2CPartyKicked.builder()
+                .reason(S2CPartyKicked.Reason.DISBANDED)
+                .build()
+        )
+    }
+
     override fun notifyPartyMemberMinecraftUsernameUpdate(party: Party, member: PartyMember) {
         S2CPartyMemberStatusUpdate.builder()
             .memberId(member.id)

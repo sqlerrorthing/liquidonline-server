@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @WebSocketMessageListener
-class FriendsListeners(
+class FriendsListener(
     private val friendshipService: FriendshipService,
     private val friendshipRequestService: FriendshipRequestService,
 ) {
