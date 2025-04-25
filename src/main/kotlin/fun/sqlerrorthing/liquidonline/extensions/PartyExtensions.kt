@@ -5,6 +5,7 @@ import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.session.InvitedMember
 import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
+import `fun`.sqlerrorthing.liquidonline.session.UserSession
 
 fun Party.toPartyDto(): PartyDto {
     return PartyDto.builder()
@@ -29,6 +30,18 @@ fun Party.sendPacketToMembers(packet: Packet?) {
     packet?.let {
         sendPacketToMembers { packet }
     }
+}
+
+fun Party.isInParty(member: PartyMember): Boolean {
+    return members.find { it == member } != null
+}
+
+fun Party.isInParty(user: UserSession): Boolean {
+    return user.activeParty?.first == this
+}
+
+fun Party.isInvited(session: UserSession): Boolean {
+    return invitedMembers.find { it.invited == session } != null
 }
 
 fun Party.hasMembers(): Boolean = members.isNotEmpty()

@@ -30,6 +30,6 @@ class MainWebSocketHandler(
     }
 
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
-        sessionStorageService.removeSessionAndNotifyUserFriends(session)
+        sessionStorageService.removeSession(session)
     }
 }

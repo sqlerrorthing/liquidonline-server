@@ -68,6 +68,8 @@ fun UserEntity.toDto(): UserAccountDto = UserAccountDto.builder()
 val UserEntity.onlineSession: UserSession? get() =
     sessionStorageService.findUserSession(this)
 
+val UserSession.id get() = user.id
+
 fun UserEntity.toFriendDto(): FriendDto = FriendDto.builder()
     .id(this.id)
     .username(this.username)

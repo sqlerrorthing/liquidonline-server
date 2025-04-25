@@ -23,11 +23,15 @@ interface SessionStorageService {
         user: UserEntity
     ): UserSession?
 
+    fun findUserSession(
+        username: String
+    ): UserSession?
+
     fun addSession(
         session: WebSocketSession
     )
 
-    fun removeSessionAndNotifyUserFriends(
+    fun removeSession(
         session: WebSocketSession
     )
 }

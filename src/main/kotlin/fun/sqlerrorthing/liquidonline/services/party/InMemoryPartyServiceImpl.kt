@@ -4,10 +4,16 @@ import `fun`.sqlerrorthing.liquidonline.dto.play.PlayDto
 import `fun`.sqlerrorthing.liquidonline.exceptions.*
 import `fun`.sqlerrorthing.liquidonline.extensions.createPartyMember
 import `fun`.sqlerrorthing.liquidonline.extensions.hasMembers
+import `fun`.sqlerrorthing.liquidonline.extensions.isInParty
+import `fun`.sqlerrorthing.liquidonline.extensions.isInvited
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartyKicked
+import `fun`.sqlerrorthing.liquidonline.services.friendship.FriendshipService
+import `fun`.sqlerrorthing.liquidonline.services.session.SessionStorageService
+import `fun`.sqlerrorthing.liquidonline.session.InvitedMember
 import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
+import `fun`.sqlerrorthing.liquidonline.utils.require
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -16,7 +22,10 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 @Service
 class InMemoryPartyServiceImpl(
-    private val partyNotifierService: PartyNotifierService
+    private val partyNotifierService: PartyNotifierService,
+    private val sessionStorageService: SessionStorageService,
+    private val friendshipService: FriendshipService,
+    private val partyInviteNotifierService: PartyInviteNotifierService
 ) : PartyService {
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
     private val parties: MutableList<Party> = CopyOnWriteArrayList()
@@ -52,12 +61,12 @@ class InMemoryPartyServiceImpl(
         user: UserSession,
         playData: PlayDto?
     ): PartyMember {
-        if (!party.hasMembers()) {
-            throw PartyHasNoMembers
+        require(party.hasMembers()) {
+            PartyHasNoMembers
         }
 
-        if (user.activeParty?.first == party) {
-            throw AlreadyInThisPartyException
+        require(user.activeParty?.first != party) {
+            AlreadyInPartyException
         }
 
         val member = user.createPartyMember(
@@ -78,10 +87,56 @@ class InMemoryPartyServiceImpl(
         requester: PartyMember
     ) {
         if (party.owner != requester) {
-            throw NoEnoughPartyPermissions
+            throw NotEnoughPartyPermissions
         }
 
         disbandParty(party)
+    }
+
+    override fun createInvite(
+        party: Party,
+        sender: PartyMember,
+        receiverUsername: String
+    ): InvitedMember {
+        val receiver = sessionStorageService.findUserSession(receiverUsername)
+            ?: throw UserNotFoundException
+
+        return createInvite(party, sender, receiver)
+    }
+
+    override fun createInvite(
+        party: Party,
+        sender: PartyMember,
+        receiver: UserSession
+    ): InvitedMember {
+        require(party.isInParty(sender)) {
+            MemberInAnotherPartyException
+        }
+
+        require(party.owner == sender || party.isPublic) {
+            NotEnoughPartyPermissions
+        }
+
+        require(friendshipService.areFriends(sender.userSession.user, receiver.user)) {
+            NotEnoughPartyPermissions
+        }
+
+        require(!party.isInParty(receiver)) {
+            AlreadyInPartyException
+        }
+
+        require(!party.isInvited(receiver)) {
+            AlreadyInvitedException
+        }
+
+        return InvitedMember.builder()
+            .invited(receiver)
+            .sender(sender.userSession)
+            .build()
+        .also {
+            party.invitedMembers.add(it)
+            partyInviteNotifierService.notifyReceiverAndPartyMembersAboutNewInvite(party, it)
+        }
     }
 
     override fun disbandParty(
@@ -103,13 +158,12 @@ class InMemoryPartyServiceImpl(
         logger.info("User '{}' was kicked from party '{}'", member.userSession.user.username, party.name)
     }
 
-
     override fun removePartyMember(
         party: Party,
         member: PartyMember,
     ) {
-        if (party.members.none { it == member }) {
-            throw MemberInAnotherPartyException
+        require(party.isInParty(member)) {
+            MemberInAnotherPartyException
         }
 
         val wasOwner = party.owner == member
@@ -133,6 +187,28 @@ class InMemoryPartyServiceImpl(
 
         partyNotifierService.notifyPartyMemberLeaved(party, member)
         logger.info("User '{}' left party '{}'", member.userSession.user.username, party.name)
+    }
+
+    override fun sessionDisconnected(session: UserSession) {
+        parties.mapNotNull { party ->
+            party.invitedMembers
+                .find { it.invited == session }
+                ?.let { party to it }
+        }.forEach { (party, invite) ->
+            inviteDeclined(party, invite)
+        }
+
+        session.activeParty?.let { (party, member) ->
+            removePartyMember(party, member)
+        }
+    }
+
+    override fun inviteDeclined(
+        party: Party,
+        invite: InvitedMember
+    ) {
+        party.invitedMembers.remove(invite)
+        partyInviteNotifierService.notifyInviteDeclined(party, invite)
     }
 
     override fun transferPartyOwnership(

@@ -13,7 +13,8 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class InvitedMember {
     @NotNull
-    UUID uuid;
+    @Builder.Default
+    UUID uuid = UUID.randomUUID();
 
     @NotNull
     UserSession invited;

@@ -1,10 +1,8 @@
 package `fun`.sqlerrorthing.liquidonline.services.party
 
 import `fun`.sqlerrorthing.liquidonline.dto.play.PlayDto
-import `fun`.sqlerrorthing.liquidonline.exceptions.AlreadyInPartyException
-import `fun`.sqlerrorthing.liquidonline.exceptions.AlreadyInThisPartyException
-import `fun`.sqlerrorthing.liquidonline.exceptions.MemberInAnotherPartyException
-import `fun`.sqlerrorthing.liquidonline.exceptions.NoEnoughPartyPermissions
+import `fun`.sqlerrorthing.liquidonline.exceptions.*
+import `fun`.sqlerrorthing.liquidonline.session.InvitedMember
 import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
@@ -29,12 +27,29 @@ interface PartyService {
     ): PartyMember
 
     @Throws(
-        NoEnoughPartyPermissions::class
+        NotEnoughPartyPermissions::class
     )
     fun disbandPartyRequested(
         party: Party,
         requester: PartyMember
     )
+
+    @Throws(
+        UserNotFoundException::class,
+        NotEnoughPartyPermissions::class,
+        MemberInAnotherPartyException::class
+    )
+    fun createInvite(
+        party: Party,
+        sender: PartyMember,
+        receiverUsername: String
+    ): InvitedMember
+
+    fun createInvite(
+        party: Party,
+        sender: PartyMember,
+        receiver: UserSession
+    ): InvitedMember
 
     fun disbandParty(
         party: Party
@@ -56,5 +71,14 @@ interface PartyService {
     fun removePartyMember(
         party: Party,
         member: PartyMember,
+    )
+
+    fun inviteDeclined(
+        party: Party,
+        invite: InvitedMember
+    )
+
+    fun sessionDisconnected(
+        session: UserSession
     )
 }

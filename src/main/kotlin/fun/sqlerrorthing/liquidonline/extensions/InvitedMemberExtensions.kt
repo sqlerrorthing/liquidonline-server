@@ -7,6 +7,6 @@ fun InvitedMember.toInvitedMemberDto(): InvitedMemberDto {
     return InvitedMemberDto.builder()
         .inviteUuid(this.uuid)
         .username(this.invited.user.username)
-        .senderId(this.sender.user.id)
+        .senderId(this.sender.id)
         .build()
 }
