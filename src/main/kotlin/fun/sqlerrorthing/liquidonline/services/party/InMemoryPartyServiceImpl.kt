@@ -21,6 +21,7 @@ import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
 @Service
+@Suppress("TooManyFunctions")
 class InMemoryPartyServiceImpl(
     private val partyNotifierService: PartyNotifierService,
     private val sessionStorageService: SessionStorageService,

@@ -7,6 +7,7 @@ import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 
+@Suppress("TooManyFunctions")
 interface PartyService {
     @Throws(
         AlreadyInPartyException::class
