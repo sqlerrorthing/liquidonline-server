@@ -35,7 +35,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.0'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation "com.github.sqlerrorthing:liquidonline-protocol:${project.protocol_version}"
     compileOnly 'org.projectlombok:lombok'
