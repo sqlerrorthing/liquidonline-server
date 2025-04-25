@@ -36,8 +36,8 @@ class InMemoryPartyServiceImpl(
         baseMember: UserSession,
         playData: PlayDto?,
     ): Party {
-        if (baseMember.activeParty != null) {
-            throw AlreadyInPartyException
+        require(baseMember.activeParty == null) {
+            AlreadyInPartyException
         }
 
         val member = baseMember.createPartyMember(playData = playData)
