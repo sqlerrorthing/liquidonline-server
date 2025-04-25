@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional
 class RepositoryFriendshipServiceImpl(
     private val friendshipRepository: FriendshipRepository,
     private val userService: UserService,
-    private val friendsNotifierService: FriendsNotifierService,
+    private val friendNotifierService: FriendNotifierService,
 ): FriendshipService {
     @Transactional(readOnly = true)
     override fun findUserFriends(user: UserEntity): List<UserEntity> {
@@ -58,7 +58,7 @@ class RepositoryFriendshipServiceImpl(
 
         brokeFriendship(friendship)
 
-        friendsNotifierService.notifyFriendWithFriendshipBrokenIfFriendOnline(
+        friendNotifierService.notifyFriendWithFriendshipBrokenIfFriendOnline(
             friend,
             requester
         )

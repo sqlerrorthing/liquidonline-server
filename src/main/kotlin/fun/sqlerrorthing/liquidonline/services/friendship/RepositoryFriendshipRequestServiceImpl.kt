@@ -17,7 +17,7 @@ class RepositoryFriendshipRequestServiceImpl(
     private val friendshipRequestRepository: FriendshipRequestRepository,
     private val friendshipService: FriendshipService,
     private val userService: UserService,
-    private val friendshipRequestsNotifierService: FriendshipRequestsNotifierService
+    private val friendshipRequestNotifierService: FriendshipRequestNotifierService
 ): FriendshipRequestService {
     @Transactional(readOnly = true)
     override fun findBySenderAndReceiver(sender: UserEntity, receiver: UserEntity): FriendshipRequestEntity? {
@@ -66,7 +66,7 @@ class RepositoryFriendshipRequestServiceImpl(
         )
 
         request.sender.onlineSession?.let {
-            friendshipRequestsNotifierService.notifyOutgoingFriendRequestWasAcceptedIfReceiverOnline(
+            friendshipRequestNotifierService.notifyOutgoingFriendRequestWasAcceptedIfReceiverOnline(
                 request.id,
                 request.receiver,
                 it
@@ -80,7 +80,7 @@ class RepositoryFriendshipRequestServiceImpl(
     override fun rejectFriendRequest(
         request: FriendshipRequestEntity
     ) {
-        friendshipRequestsNotifierService.notifyOutgoingFriendRequestWasRejectedIfSenderOnline(
+        friendshipRequestNotifierService.notifyOutgoingFriendRequestWasRejectedIfSenderOnline(
             request
         )
 
@@ -111,7 +111,7 @@ class RepositoryFriendshipRequestServiceImpl(
             user,
             receiver
         ).apply {
-            friendshipRequestsNotifierService.notifyReceiverNewFriendRequestIfReceiverOnline(
+            friendshipRequestNotifierService.notifyReceiverNewFriendRequestIfReceiverOnline(
                 this
             )
         }
@@ -119,7 +119,7 @@ class RepositoryFriendshipRequestServiceImpl(
 
     override fun rejectFriendRequestBySender(request: FriendshipRequestEntity) {
         friendshipRequestRepository.delete(request)
-        friendshipRequestsNotifierService.notifyIncomingFriendRequestRejectedIfReceiverOnline(request)
+        friendshipRequestNotifierService.notifyIncomingFriendRequestRejectedIfReceiverOnline(request)
     }
 
     @Transactional

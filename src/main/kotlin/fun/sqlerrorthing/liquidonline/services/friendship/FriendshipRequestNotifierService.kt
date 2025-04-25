@@ -4,7 +4,7 @@ import `fun`.sqlerrorthing.liquidonline.entities.FriendshipRequestEntity
 import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 
-interface FriendshipRequestsNotifierService {
+interface FriendshipRequestNotifierService {
     fun notifyOutgoingFriendRequestWasAccepted(
         requestId: Int,
         receiver: UserSession,

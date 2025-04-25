@@ -3,7 +3,7 @@ package `fun`.sqlerrorthing.liquidonline.services.session
 import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
 import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.login.C2SLogin
-import `fun`.sqlerrorthing.liquidonline.services.friendship.FriendsNotifierService
+import `fun`.sqlerrorthing.liquidonline.services.friendship.FriendNotifierService
 import `fun`.sqlerrorthing.liquidonline.services.user.UserService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.ws.listener.PacketListenerRegistrar
@@ -20,7 +20,7 @@ class InMemorySessionStorageServiceImpl(
     private val packetListenerRegistrar: PacketListenerRegistrar,
     @Lazy
     private val sessionTaskService: SessionTaskService,
-    private val friendsNotifierService: FriendsNotifierService
+    private val friendNotifierService: FriendNotifierService
 ): SessionStorageService {
     private val sessions: MutableSet<WebSocketSession> = CopyOnWriteArraySet()
     private val authoredSessions: MutableList<UserSession> = CopyOnWriteArrayList()
@@ -45,7 +45,7 @@ class InMemorySessionStorageServiceImpl(
 
     override fun authSessionAndNotifyUserFriends(session: UserSession) {
         authoredSessions.add(session)
-        friendsNotifierService.notifyFriendJoined(session)
+        friendNotifierService.notifyFriendJoined(session)
     }
 
     override fun findUserSession(user: UserEntity): UserSession? {
@@ -67,7 +67,7 @@ class InMemorySessionStorageServiceImpl(
                 lastLogin = Instant.now()
             })
 
-            friendsNotifierService.notifyFriendLeaved(userSession)
+            friendNotifierService.notifyFriendLeaved(userSession)
         }
     }
 }

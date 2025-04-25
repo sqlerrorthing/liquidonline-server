@@ -5,10 +5,10 @@ import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.*
 import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import org.springframework.stereotype.Service
-import java.util.Base64
+import java.util.*
 
 @Service
-class InMemoryPartyNotifierService : PartyNotifierService {
+class InMemorySessionsPartyNotifierService : PartyNotifierService {
     override fun notifyPartyMemberJoined(party: Party, joinedMember: PartyMember) {
         S2CPartyMemberJoined.builder()
             .member(joinedMember.toPartyMemberDto())

@@ -1,6 +1,6 @@
 package `fun`.sqlerrorthing.liquidonline.services.user
 
-import `fun`.sqlerrorthing.liquidonline.services.friendship.FriendsNotifierService
+import `fun`.sqlerrorthing.liquidonline.services.friendship.FriendNotifierService
 import `fun`.sqlerrorthing.liquidonline.services.party.PartyNotifierService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.utils.SkinValidator
@@ -10,7 +10,7 @@ import java.util.*
 @Service
 class MinecraftSkinServiceImpl(
     private val skinValidator: SkinValidator,
-    private val friendsNotifierService: FriendsNotifierService,
+    private val friendNotifierService: FriendNotifierService,
     private val partyNotifierService: PartyNotifierService
 ): MinecraftSkinService {
     override fun updateSkin(session: UserSession, newSkin: String): Boolean {
@@ -26,7 +26,7 @@ class MinecraftSkinServiceImpl(
         skinValidator.validateHead(newSkin)?.let {
             if (!session.skin.contentEquals(it)) {
                 session.skin = it
-                friendsNotifierService.notifyFriendsWithSkinUpdate(session)
+                friendNotifierService.notifyFriendsWithSkinUpdate(session)
 
                 session.activeParty?.let { (party, member) ->
                     partyNotifierService.notifyPartyMemberSkinUpdate(party, member)

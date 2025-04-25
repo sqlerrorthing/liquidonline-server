@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component
 import java.util.*
 
 @Component
-class InMemoryFriendsNotifierServiceImpl: FriendsNotifierService {
+class InMemorySessionsFriendNotifierServiceImpl: FriendNotifierService {
     @Async
     override fun notifyFriendJoined(joinedSession: UserSession) {
         joinedSession.user.toFriendDto().also {

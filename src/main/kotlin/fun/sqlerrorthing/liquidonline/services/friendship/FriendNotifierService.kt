@@ -3,7 +3,7 @@ package `fun`.sqlerrorthing.liquidonline.services.friendship
 import `fun`.sqlerrorthing.liquidonline.entities.UserEntity
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 
-interface FriendsNotifierService {
+interface FriendNotifierService {
     fun notifyFriendJoined(
         joinedSession: UserSession
     )

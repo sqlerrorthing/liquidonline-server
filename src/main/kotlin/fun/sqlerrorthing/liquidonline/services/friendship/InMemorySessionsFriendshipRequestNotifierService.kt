@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 
 @Service
-class InMemoryFriendshipRequestsNotifierService: FriendshipRequestsNotifierService {
+class InMemorySessionsFriendshipRequestNotifierService: FriendshipRequestNotifierService {
     @Async
     override fun notifyOutgoingFriendRequestWasAccepted(
         requestId: Int,

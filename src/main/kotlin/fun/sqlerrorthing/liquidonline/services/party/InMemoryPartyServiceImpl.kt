@@ -14,7 +14,7 @@ import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
 @Service
-class InMemoryPartyServiceWithNotifierServiceImpl(
+class InMemoryPartyServiceImpl(
     private val partyNotifierService: PartyNotifierService
 ) : PartyService {
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
