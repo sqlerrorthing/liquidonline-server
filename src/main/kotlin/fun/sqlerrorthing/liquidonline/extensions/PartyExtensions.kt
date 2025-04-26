@@ -41,6 +41,10 @@ fun Party.isInParty(user: UserSession): Boolean {
     return user.activeParty?.first == this
 }
 
+fun Party.findMemberById(memberId: Int): PartyMember? {
+    return members.find { it.id == memberId }
+}
+
 val Party.isNextPartyMemberSlotFree get() = members.size + 1 <= maxMembers
 
 fun List<Party>.findPartyByInviteUuid(inviteUuid: UUID): Pair<Party, InvitedMember>? {

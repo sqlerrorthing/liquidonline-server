@@ -12,6 +12,7 @@ import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.utils.require
+import `fun`.sqlerrorthing.liquidonline.utils.requireNotNull
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -156,6 +157,22 @@ class InMemoryPartyServiceImpl(
         partyNotifierService.notifyKickedMember(member, S2CPartyKicked.Reason.KICKED)
 
         logger.info("User '{}' was kicked from party '{}'", member.userSession.user.username, party.name)
+    }
+
+    override fun kickPartyMember(
+        party: Party,
+        requester: PartyMember,
+        memberId: Int
+    ) {
+        require(party.owner == requester) {
+            NotEnoughPartyPermissionsExceptions
+        }
+
+        val member = requireNotNull(party.findMemberById(memberId)) {
+            PartyMemberNotFoundException
+        }
+
+        kickPartyMember(party, member)
     }
 
     override fun removePartyMember(

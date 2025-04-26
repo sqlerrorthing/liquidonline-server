@@ -28,6 +28,10 @@ object InviteNotFoundException: RuntimeException() {
     private fun readResolve(): Any = InviteNotFoundException
 }
 
+object PartyMemberNotFoundException: RuntimeException() {
+    private fun readResolve(): Any = PartyMemberNotFoundException
+}
+
 object PartyMembersLimitException: RuntimeException() {
     private fun readResolve(): Any = PartyMembersLimitException
 }

@@ -64,6 +64,12 @@ interface PartyService {
         member: PartyMember
     )
 
+    fun kickPartyMember(
+        party: Party,
+        requester: PartyMember,
+        memberId: Int
+    )
+
     fun transferPartyOwnership(
         party: Party,
         newOwner: PartyMember
