@@ -8,7 +8,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.jpa' version '2.0.21'
 
     id 'org.jetbrains.kotlin.plugin.lombok' version '2.0.21'
-    id 'io.freefair.lombok' version "8.13"
+    id 'io.freefair.lombok' version "8.13.1"
 
     id 'org.graalvm.buildtools.native' version "0.10.6"
 
@@ -52,7 +52,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.0'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation "com.github.sqlerrorthing:liquidonline-protocol:${project.protocol_version}"
     compileOnly 'org.projectlombok:lombok'
