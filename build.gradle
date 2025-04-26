@@ -6,7 +6,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.jpa' version '1.9.25'
 
     id 'org.jetbrains.kotlin.plugin.lombok' version '2.1.20'
-    id 'io.freefair.lombok' version "8.13"
+    id 'io.freefair.lombok' version "8.13.1"
 }
 
 group = 'fun.sqlerrorthing'
