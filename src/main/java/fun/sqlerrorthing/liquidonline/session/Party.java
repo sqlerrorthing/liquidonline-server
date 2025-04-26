@@ -32,11 +32,11 @@ public class Party {
 
     @NotNull
     @Builder.Default
-    List<PartyMember> members = new ArrayList<>(maxMembers);
+    List<PartyMember> members = new ArrayList<>();
 
     @NotNull
     @Builder.Default
-    List<InvitedMember> invitedMembers = new ArrayList<>(maxMembers);
+    List<InvitedMember> invitedMembers = new ArrayList<>();
 
     @Override
     public boolean equals(Object other) {
