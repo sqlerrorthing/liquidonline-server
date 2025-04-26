@@ -1,11 +1,13 @@
 package `fun`.sqlerrorthing.liquidonline.services.party
 
+import `fun`.sqlerrorthing.liquidonline.dto.party.PartyDto
 import `fun`.sqlerrorthing.liquidonline.dto.play.PlayDto
 import `fun`.sqlerrorthing.liquidonline.exceptions.*
 import `fun`.sqlerrorthing.liquidonline.session.InvitedMember
 import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
+import java.util.*
 
 @Suppress("TooManyFunctions")
 interface PartyService {
@@ -24,11 +26,12 @@ interface PartyService {
     fun joinPartyMember(
         party: Party,
         user: UserSession,
+        inviteUuid: UUID? = null,
         playData: PlayDto? = null
     ): PartyMember
 
     @Throws(
-        NotEnoughPartyPermissions::class
+        NotEnoughPartyPermissionsExceptions::class
     )
     fun disbandPartyRequested(
         party: Party,
@@ -37,7 +40,7 @@ interface PartyService {
 
     @Throws(
         UserNotFoundException::class,
-        NotEnoughPartyPermissions::class,
+        NotEnoughPartyPermissionsExceptions::class,
         MemberInAnotherPartyException::class
     )
     fun createInvite(
@@ -74,8 +77,27 @@ interface PartyService {
         member: PartyMember,
     )
 
+    fun inviteAccepted(
+        inviteUuid: UUID,
+        requester: UserSession,
+        playData: PlayDto?
+    ): PartyDto
+
+    fun inviteAccepted(
+        party: Party,
+        requester: UserSession,
+        invite: InvitedMember,
+        playData: PlayDto?
+    )
+
+    fun inviteDeclined(
+        requester: UserSession,
+        inviteUuid: UUID
+    )
+
     fun inviteDeclined(
         party: Party,
+        requester: UserSession,
         invite: InvitedMember
     )
 

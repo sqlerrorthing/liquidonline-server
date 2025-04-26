@@ -6,6 +6,7 @@ import `fun`.sqlerrorthing.liquidonline.session.InvitedMember
 import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
+import java.util.*
 
 fun Party.toPartyDto(): PartyDto {
     return PartyDto.builder()
@@ -38,6 +39,20 @@ fun Party.isInParty(member: PartyMember): Boolean {
 
 fun Party.isInParty(user: UserSession): Boolean {
     return user.activeParty?.first == this
+}
+
+val Party.isNextPartyMemberSlotFree get() = members.size + 1 <= maxMembers
+
+fun List<Party>.findPartyByInviteUuid(inviteUuid: UUID): Pair<Party, InvitedMember>? {
+    forEach { party ->
+        party.invitedMembers.firstOrNull { invite ->
+            invite.uuid == inviteUuid
+        }?.let {
+            return party to it
+        }
+    }
+
+    return null
 }
 
 fun Party.isInvited(session: UserSession): Boolean {

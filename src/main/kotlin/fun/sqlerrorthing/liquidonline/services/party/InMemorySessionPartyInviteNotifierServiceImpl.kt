@@ -7,6 +7,7 @@ import `fun`.sqlerrorthing.liquidonline.extensions.toInvitedMemberDto
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CNewPartyMemberInvite
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartyInviteDeclined
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartyInviteReceived
+import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartyInviteRevoked
 import `fun`.sqlerrorthing.liquidonline.session.InvitedMember
 import `fun`.sqlerrorthing.liquidonline.session.Party
 import org.springframework.scheduling.annotation.Async
@@ -46,4 +47,11 @@ class InMemorySessionPartyInviteNotifierServiceImpl: PartyInviteNotifierService 
         )
     }
 
+    override fun notifyReceiverInviteRevoked(invite: InvitedMember) {
+        invite.invited.sendPacket(
+            S2CPartyInviteRevoked.builder()
+                .inviteUuid(invite.uuid)
+                .build()
+        )
+    }
 }

@@ -3,12 +3,10 @@ package `fun`.sqlerrorthing.liquidonline.ws.listener.listeners.party
 import `fun`.sqlerrorthing.liquidonline.exceptions.*
 import `fun`.sqlerrorthing.liquidonline.extensions.toInvitedMemberDto
 import `fun`.sqlerrorthing.liquidonline.extensions.toPartyDto
-import `fun`.sqlerrorthing.liquidonline.packets.c2s.party.C2SCreateParty
-import `fun`.sqlerrorthing.liquidonline.packets.c2s.party.C2SInvitePartyMember
-import `fun`.sqlerrorthing.liquidonline.packets.c2s.party.C2SPartyDisband
-import `fun`.sqlerrorthing.liquidonline.packets.c2s.party.C2SPartyLeave
+import `fun`.sqlerrorthing.liquidonline.packets.c2s.party.*
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CCreatePartyResult
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CInvitePartyMemberResult
+import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartyInviteResponseStatus
 import `fun`.sqlerrorthing.liquidonline.services.party.PartyService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.ws.listener.PacketMessageListener
@@ -52,7 +50,7 @@ class PartyListener(
 
         try {
             partyService.disbandPartyRequested(party, member)
-        } catch (_: NotEnoughPartyPermissions) {}
+        } catch (_: NotEnoughPartyPermissionsExceptions) {}
     }
 
     @PacketMessageListener
@@ -72,7 +70,7 @@ class PartyListener(
             S2CInvitePartyMemberResult.builder()
                 .result(S2CInvitePartyMemberResult.Result.NOT_FOUND)
                 .build()
-        } catch (_: NotEnoughPartyPermissions) {
+        } catch (_: NotEnoughPartyPermissionsExceptions) {
             S2CInvitePartyMemberResult.builder()
                 .result(S2CInvitePartyMemberResult.Result.NOT_ENOUGH_RIGHTS)
                 .build()
@@ -84,8 +82,41 @@ class PartyListener(
             S2CInvitePartyMemberResult.builder()
                 .result(S2CInvitePartyMemberResult.Result.ALREADY_IN_A_PARTY)
                 .build()
+        }
+    }
+
+    @PacketMessageListener
+    private fun inviteResponse(userSession: UserSession, packet: C2SPartyInviteResponse): S2CPartyInviteResponseStatus {
+        return try {
+            when (packet.response) {
+                C2SPartyInviteResponse.Response.ACCEPTED -> {
+                    val party = partyService.inviteAccepted(packet.inviteUuid, userSession, packet.play)
+
+                    S2CPartyInviteResponseStatus.builder()
+                        .party(party)
+                        .result(S2CPartyInviteResponseStatus.Result.SUCCESS)
+                        .build()
+                }
+                C2SPartyInviteResponse.Response.DECLINED -> {
+                    partyService.inviteDeclined(userSession, packet.inviteUuid)
+
+                    S2CPartyInviteResponseStatus.builder()
+                        .result(S2CPartyInviteResponseStatus.Result.SUCCESS)
+                        .build()
+                }
+            }
+        } catch (_: InviteNotFoundException) {
+            S2CPartyInviteResponseStatus.builder()
+                .result(S2CPartyInviteResponseStatus.Result.INVITE_NOT_FOUND)
+                .build()
+        } catch (_: PartyMembersLimitException) {
+            S2CPartyInviteResponseStatus.builder()
+                .result(S2CPartyInviteResponseStatus.Result.PARTY_MEMBERS_LIMIT)
+                .build()
         } catch (_: MemberInAnotherPartyException) {
-            error("Unreachable here")
+            S2CPartyInviteResponseStatus.builder()
+                .result(S2CPartyInviteResponseStatus.Result.ALREADY_IN_ANOTHER_PARTY)
+                .build()
         }
     }
 }

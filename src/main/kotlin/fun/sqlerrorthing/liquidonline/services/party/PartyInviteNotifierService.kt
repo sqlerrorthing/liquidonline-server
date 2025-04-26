@@ -13,4 +13,8 @@ interface PartyInviteNotifierService {
         party: Party,
         invite: InvitedMember
     )
+
+    fun notifyReceiverInviteRevoked(
+        invite: InvitedMember
+    )
 }

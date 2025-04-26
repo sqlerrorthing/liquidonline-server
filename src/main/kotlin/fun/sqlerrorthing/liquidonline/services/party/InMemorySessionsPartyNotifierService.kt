@@ -9,8 +9,9 @@ import java.util.*
 
 @Service
 class InMemorySessionsPartyNotifierService : PartyNotifierService {
-    override fun notifyPartyMemberJoined(party: Party, joinedMember: PartyMember) {
+    override fun notifyPartyMemberJoined(party: Party, inviteUuid: UUID?, joinedMember: PartyMember) {
         S2CPartyMemberJoined.builder()
+            .inviteUuid(inviteUuid)
             .member(joinedMember.toPartyMemberDto())
             .build()
         .apply {

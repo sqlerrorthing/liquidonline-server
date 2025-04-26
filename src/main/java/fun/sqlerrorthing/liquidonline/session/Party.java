@@ -24,16 +24,19 @@ public class Party {
     @Builder.Default
     boolean isPublic = false;
 
+    @Builder.Default
+    int maxMembers = SharedConstants.MAX_PARTY_MEMBERS_LIMIT;
+
     @NotNull
     PartyMember owner;
 
     @NotNull
     @Builder.Default
-    List<PartyMember> members = new ArrayList<>(SharedConstants.MAX_PARTY_MEMBERS_LIMIT);
+    List<PartyMember> members = new ArrayList<>(maxMembers);
 
     @NotNull
     @Builder.Default
-    List<InvitedMember> invitedMembers = new ArrayList<>(SharedConstants.MAX_PARTY_MEMBERS_LIMIT);
+    List<InvitedMember> invitedMembers = new ArrayList<>(maxMembers);
 
     @Override
     public boolean equals(Object other) {

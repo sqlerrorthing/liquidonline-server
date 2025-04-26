@@ -1,11 +1,9 @@
 package `fun`.sqlerrorthing.liquidonline.services.party
 
+import `fun`.sqlerrorthing.liquidonline.dto.party.PartyDto
 import `fun`.sqlerrorthing.liquidonline.dto.play.PlayDto
 import `fun`.sqlerrorthing.liquidonline.exceptions.*
-import `fun`.sqlerrorthing.liquidonline.extensions.createPartyMember
-import `fun`.sqlerrorthing.liquidonline.extensions.hasMembers
-import `fun`.sqlerrorthing.liquidonline.extensions.isInParty
-import `fun`.sqlerrorthing.liquidonline.extensions.isInvited
+import `fun`.sqlerrorthing.liquidonline.extensions.*
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartyKicked
 import `fun`.sqlerrorthing.liquidonline.services.friendship.FriendshipService
 import `fun`.sqlerrorthing.liquidonline.services.session.SessionStorageService
@@ -60,6 +58,7 @@ class InMemoryPartyServiceImpl(
     override fun joinPartyMember(
         party: Party,
         user: UserSession,
+        inviteUuid: UUID?,
         playData: PlayDto?
     ): PartyMember {
         require(party.hasMembers()) {
@@ -78,7 +77,7 @@ class InMemoryPartyServiceImpl(
         party.members.add(member)
         user.activeParty = party to member
 
-        partyNotifierService.notifyPartyMemberJoined(party, member)
+        partyNotifierService.notifyPartyMemberJoined(party, inviteUuid, member)
         logger.info("User '{}' joined party '{}'", user.user.username, party.name)
         return member
     }
@@ -87,8 +86,8 @@ class InMemoryPartyServiceImpl(
         party: Party,
         requester: PartyMember
     ) {
-        if (party.owner != requester) {
-            throw NotEnoughPartyPermissions
+        require(party.owner == requester) {
+            NotEnoughPartyPermissionsExceptions
         }
 
         disbandParty(party)
@@ -115,11 +114,11 @@ class InMemoryPartyServiceImpl(
         }
 
         require(party.owner == sender || party.isPublic) {
-            NotEnoughPartyPermissions
+            NotEnoughPartyPermissionsExceptions
         }
 
         require(friendshipService.areFriends(sender.userSession.user, receiver.user)) {
-            NotEnoughPartyPermissions
+            NotEnoughPartyPermissionsExceptions
         }
 
         require(!party.isInParty(receiver)) {
@@ -196,7 +195,7 @@ class InMemoryPartyServiceImpl(
                 .find { it.invited == session }
                 ?.let { party to it }
         }.forEach { (party, invite) ->
-            inviteDeclined(party, invite)
+            inviteDeclined(party, session, invite)
         }
 
         session.activeParty?.let { (party, member) ->
@@ -206,10 +205,69 @@ class InMemoryPartyServiceImpl(
 
     override fun inviteDeclined(
         party: Party,
+        requester: UserSession,
         invite: InvitedMember
     ) {
+        if (requester == invite.sender || requester == party.owner) {
+            partyInviteNotifierService.notifyReceiverInviteRevoked(invite)
+        } else {
+            require(requester == invite.invited) {
+                InviteNotFoundException
+            }
+        }
+
         party.invitedMembers.remove(invite)
         partyInviteNotifierService.notifyInviteDeclined(party, invite)
+    }
+
+    override fun inviteDeclined(requester: UserSession, inviteUuid: UUID) {
+        val (party, invite) = parties.findPartyByInviteUuid(inviteUuid)
+            ?: throw InviteNotFoundException
+
+        inviteDeclined(party, requester, invite)
+    }
+
+    override fun inviteAccepted(
+        inviteUuid: UUID,
+        requester: UserSession,
+        playData: PlayDto?
+    ): PartyDto {
+        val (party, invite) = parties.findPartyByInviteUuid(inviteUuid)
+            ?: throw InviteNotFoundException
+
+        inviteAccepted(party, requester, invite, playData)
+        return party.toPartyDto()
+    }
+
+    override fun inviteAccepted(
+        party: Party,
+        requester: UserSession,
+        invite: InvitedMember,
+        playData: PlayDto?
+    ) {
+        require(requester == invite.invited) {
+            InviteNotFoundException
+        }
+
+        require(requester.activeParty == null) {
+            MemberInAnotherPartyException
+        }
+
+        require(party.isNextPartyMemberSlotFree) {
+            party.invitedMembers.remove(invite)
+            partyInviteNotifierService.notifyInviteDeclined(party, invite)
+
+            PartyMembersLimitException
+        }
+
+        party.invitedMembers.remove(invite)
+
+        joinPartyMember(
+            party,
+            requester,
+            invite.uuid,
+            playData
+        )
     }
 
     override fun transferPartyOwnership(

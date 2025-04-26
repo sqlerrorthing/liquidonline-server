@@ -12,8 +12,8 @@ object PartyHasNoMembers: RuntimeException() {
     private fun readResolve(): Any = PartyHasNoMembers
 }
 
-object NotEnoughPartyPermissions: RuntimeException() {
-    private fun readResolve(): Any = NotEnoughPartyPermissions
+object NotEnoughPartyPermissionsExceptions: RuntimeException() {
+    private fun readResolve(): Any = NotEnoughPartyPermissionsExceptions
 }
 
 object MemberInAnotherPartyException: RuntimeException() {
@@ -24,3 +24,10 @@ object AlreadyInvitedException: RuntimeException() {
     private fun readResolve(): Any = AlreadyInvitedException
 }
 
+object InviteNotFoundException: RuntimeException() {
+    private fun readResolve(): Any = InviteNotFoundException
+}
+
+object PartyMembersLimitException: RuntimeException() {
+    private fun readResolve(): Any = PartyMembersLimitException
+}

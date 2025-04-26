@@ -3,6 +3,7 @@ package `fun`.sqlerrorthing.liquidonline.services.party
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartyKicked
 import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
+import java.util.*
 
 interface PartyNotifierService {
     /**
@@ -13,6 +14,7 @@ interface PartyNotifierService {
      */
     fun notifyPartyMemberJoined(
         party: Party,
+        inviteUuid: UUID?,
         joinedMember: PartyMember
     )
 
