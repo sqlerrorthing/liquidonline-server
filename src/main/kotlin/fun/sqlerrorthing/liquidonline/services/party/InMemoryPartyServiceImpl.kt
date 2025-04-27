@@ -99,8 +99,9 @@ class InMemoryPartyServiceImpl(
         sender: PartyMember,
         receiverUsername: String
     ): InvitedMember {
-        val receiver = sessionStorageService.findUserSession(receiverUsername)
-            ?: throw UserNotFoundException
+        val receiver = requireNotNull(sessionStorageService.findUserSession(receiverUsername)) {
+            UserNotFoundException
+        }
 
         return createInvite(party, sender, receiver)
     }
