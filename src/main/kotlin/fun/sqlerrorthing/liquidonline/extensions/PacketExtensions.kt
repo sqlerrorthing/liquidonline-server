@@ -18,8 +18,8 @@ fun WebSocketSession.sendPacket(message: Packet) {
 fun Packet.serialize(): String {
     val message = objectMapper!!.createObjectNode()
 
-    message.put("id", id().toInt())
-    message.set<JsonNode>("payload", objectMapper!!.convertValue(this, JsonNode::class.java))
+    message.put("i", id().toInt())
+    message.set<JsonNode>("p", objectMapper!!.convertValue(this, JsonNode::class.java))
 
     return objectMapper!!.writeValueAsString(message)
 }
