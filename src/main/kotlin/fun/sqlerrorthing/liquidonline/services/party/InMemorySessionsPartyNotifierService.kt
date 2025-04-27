@@ -88,7 +88,7 @@ class InMemorySessionsPartyNotifierService : PartyNotifierService {
     override fun notifyPartyMemberSkinUpdate(party: Party, member: PartyMember) {
         S2CPartyMemberStatusUpdate.builder()
             .memberId(member.id)
-            .skin(Base64.getEncoder().encodeToString(member.userSession.skin))
+            .skin(member.userSession.skin)
             .build()
         .apply {
             party.sendPacketToMembers { partyMember ->

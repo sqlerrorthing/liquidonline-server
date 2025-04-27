@@ -4,7 +4,6 @@ import org.springframework.stereotype.Component
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.util.*
 import javax.imageio.ImageIO
 
 private val PNG_SIGNATURE = byteArrayOf(
@@ -14,15 +13,9 @@ private val PNG_SIGNATURE = byteArrayOf(
 @Component
 class SkinValidator {
     /**
-     * Takes as input a base64 string with a png of a head (16x16) from a skin.
+     * Takes as input a bytearray with a png of a head (16x16) from a skin.
      * Returns null if the skin does not meet the requirements
      */
-    fun validateHead(head: String): ByteArray? {
-        return runCatching {
-            validateHead(Base64.getDecoder().decode(head))
-        }.getOrNull()
-    }
-
     fun validateHead(headBytes: ByteArray): ByteArray? {
         return runCatching {
             if (!headBytes.take(8).toByteArray().contentEquals(PNG_SIGNATURE)) {

@@ -12,7 +12,6 @@ import `fun`.sqlerrorthing.liquidonline.packets.s2c.friends.S2CFriendStatusUpdat
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
-import java.util.*
 
 @Component
 class InMemorySessionsFriendNotifierServiceImpl: FriendNotifierService {
@@ -63,7 +62,7 @@ class InMemorySessionsFriendNotifierServiceImpl: FriendNotifierService {
         updatedSession.sendPacketToFriends(
             S2CFriendStatusUpdate.builder()
                 .friendId(updatedSession.user.id)
-                .skin(Base64.getEncoder().encodeToString(updatedSession.skin))
+                .skin(updatedSession.skin)
                 .build()
         )
     }
