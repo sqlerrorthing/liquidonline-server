@@ -22,6 +22,7 @@ class InMemorySessionStorageServiceImpl(
     @Lazy
     private val sessionTaskService: SessionTaskService,
     private val friendNotifierService: FriendNotifierService,
+    @Lazy
     private val partyService: PartyService
 ): SessionStorageService {
     private val sessions: MutableSet<WebSocketSession> = CopyOnWriteArraySet()

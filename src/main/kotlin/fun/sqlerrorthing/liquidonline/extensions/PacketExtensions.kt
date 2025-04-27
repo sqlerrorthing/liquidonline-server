@@ -8,18 +8,18 @@ import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 
 private val objectMapper by lazy {
-    SpringContextHolder.getBean(ObjectMapper::class.java)
+    requireNotNull(SpringContextHolder.getBean(ObjectMapper::class.java))
 }
 
 fun WebSocketSession.sendPacket(message: Packet) {
     this.sendMessage(TextMessage(message.serialize()))
 }
 
-fun Packet.serialize(): String {
-    val message = objectMapper!!.createObjectNode()
+fun Packet.serialize(mapper: ObjectMapper = objectMapper): String {
+    val message = mapper.createObjectNode()
 
     message.put("i", id().toInt())
-    message.set<JsonNode>("p", objectMapper!!.convertValue(this, JsonNode::class.java))
+    message.set<JsonNode>("p", mapper.convertValue(this, JsonNode::class.java))
 
-    return objectMapper!!.writeValueAsString(message)
+    return mapper.writeValueAsString(message)
 }
