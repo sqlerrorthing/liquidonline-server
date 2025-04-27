@@ -1,12 +1,11 @@
-package `fun`.sqlerrorthing.liquidonline.config
+package `fun`.sqlerrorthing.liquidonline.config.jackson
 
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.JsonSerializer
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import `fun`.sqlerrorthing.liquidonline.config.adapters.RegisterInObjectMapper
+import `fun`.sqlerrorthing.liquidonline.config.jackson.adapters.RegisterInObjectMapper
+import `fun`.sqlerrorthing.liquidonline.config.jackson.introspectors.AnnotationIntrospector
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -31,8 +30,11 @@ class JacksonConfig(
         }
 
         return ObjectMapper()
+            .setAnnotationIntrospector(AnnotationIntrospector())
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
             .registerModule(JavaTimeModule())
             .registerModule(module)
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
     }
 }

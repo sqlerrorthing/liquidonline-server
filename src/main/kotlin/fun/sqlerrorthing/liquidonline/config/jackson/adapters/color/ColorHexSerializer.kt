@@ -1,9 +1,9 @@
-package `fun`.sqlerrorthing.liquidonline.config.adapters.color
+package `fun`.sqlerrorthing.liquidonline.config.jackson.adapters.color
 
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
-import `fun`.sqlerrorthing.liquidonline.config.adapters.RegisterInObjectMapper
+import `fun`.sqlerrorthing.liquidonline.config.jackson.adapters.RegisterInObjectMapper
 import org.springframework.stereotype.Component
 import java.awt.Color
 

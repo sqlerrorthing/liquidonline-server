@@ -61,12 +61,12 @@ abstract class PacketWebSocketHandler(
     private fun deserializePacket(payload: String): Packet {
         val root = objectMapper.readTree(payload)
 
-        val id = root["id"].asInt().toByte()
+        val id = root["i"].asInt().toByte()
 
         val packetClass: Class<out Packet> = Packets.PACKETS_WITH_ID[id]
             ?: throw IllegalArgumentException("Unknown packet id")
 
-        return objectMapper.treeToValue(root["payload"], packetClass)
+        return objectMapper.treeToValue(root["p"], packetClass)
     }
 
     private fun validatePacket(packet: Packet) {
