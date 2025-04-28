@@ -72,6 +72,12 @@ interface PartyService {
 
     fun transferPartyOwnership(
         party: Party,
+        requester: PartyMember,
+        newOwnerId: Int
+    )
+
+    fun transferPartyOwnership(
+        party: Party,
         newOwner: PartyMember
     )
 

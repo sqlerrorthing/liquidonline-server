@@ -19,16 +19,19 @@ class MinecraftDataUpdateListener(
     private val minecraftSkinService: MinecraftSkinService
 ) {
     @PacketMessageListener
+    @Suppress("unused")
     fun handleMinecraftUsernameUpdateEvent(session: UserSession, packet: C2SUpdateMinecraftUsername) {
         minecraftUsernameService.updateUsername(session, packet.username)
     }
 
     @PacketMessageListener
+    @Suppress("unused")
     fun handleMinecraftPlayingServerUpdateEvent(session: UserSession, packet: C2SUpdatePlayingServer) {
         minecraftServerService.updateServer(session, packet.server)
     }
 
     @PacketMessageListener
+    @Suppress("unused")
     fun handleHeadSkinUpdateEvent(session: UserSession, packet: C2SUpdateSkin) {
         minecraftSkinService.updateSkin(session, packet.skin)
     }

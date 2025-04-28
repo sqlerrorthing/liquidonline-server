@@ -176,6 +176,22 @@ class InMemoryPartyServiceImpl(
         kickPartyMember(party, member)
     }
 
+    override fun transferPartyOwnership(
+        party: Party,
+        requester: PartyMember,
+        newOwnerId: Int
+    ) {
+        require(party.owner == requester) {
+            NotEnoughPartyPermissionsExceptions
+        }
+
+        val member = requireNotNull(party.findMemberById(newOwnerId)) {
+            PartyMemberNotFoundException
+        }
+
+        transferPartyOwnership(party, member)
+    }
+
     override fun removePartyMember(
         party: Party,
         member: PartyMember,

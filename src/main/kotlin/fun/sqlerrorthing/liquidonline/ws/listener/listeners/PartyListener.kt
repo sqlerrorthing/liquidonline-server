@@ -138,4 +138,19 @@ class PartyListener(
             }
         }
     }
+
+    @PacketMessageListener
+    private fun transferOwnership(userSession: UserSession, packet: C2STransferPartyOwnership) {
+        val (party, member) = userSession.activeParty ?: return
+
+        try {
+            partyService.transferPartyOwnership(party, member, packet.memberId)
+        } catch (ex: RuntimeException) {
+            when (ex) {
+                is NotEnoughPartyPermissionsExceptions,
+                is PartyMemberNotFoundException -> {}
+                else -> throw ex
+            }
+        }
+    }
 }
