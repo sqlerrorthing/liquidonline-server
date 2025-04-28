@@ -4,11 +4,13 @@ import `fun`.sqlerrorthing.liquidonline.extensions.*
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.*
 import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
 class InMemorySessionsPartyNotifierService : PartyNotifierService {
+    @Async
     override fun notifyPartyMemberJoined(party: Party, inviteUuid: UUID?, joinedMember: PartyMember) {
         S2CPartyMemberJoined.builder()
             .inviteUuid(inviteUuid)
@@ -21,6 +23,7 @@ class InMemorySessionsPartyNotifierService : PartyNotifierService {
         }
     }
 
+    @Async
     override fun notifyPartyMemberLeaved(party: Party, leavedMember: PartyMember) {
         party.sendPacketToMembers {
             S2CPartyMemberLeaved.builder()
@@ -29,6 +32,7 @@ class InMemorySessionsPartyNotifierService : PartyNotifierService {
         }
     }
 
+    @Async
     override fun notifyRevokedAllPartyInvites(party: Party) {
         party.sendPacketToInvitedMembers { invite ->
             S2CPartyInviteRevoked.builder()
@@ -37,6 +41,7 @@ class InMemorySessionsPartyNotifierService : PartyNotifierService {
         }
     }
 
+    @Async
     override fun notifyPartyOwnerTransferred(party: Party, newOwner: PartyMember) {
         party.sendPacketToMembers(
             S2CPartyOwnerTransferred.builder()
@@ -45,6 +50,7 @@ class InMemorySessionsPartyNotifierService : PartyNotifierService {
         )
     }
 
+    @Async
     override fun notifyKickedMember(member: PartyMember, reason: S2CPartyKicked.Reason) {
         member.sendPacket(
             S2CPartyKicked.builder()
@@ -53,6 +59,7 @@ class InMemorySessionsPartyNotifierService : PartyNotifierService {
         )
     }
 
+    @Async
     override fun notifyPartyMembersPartyDisband(party: Party) {
         party.sendPacketToMembers(
             S2CPartyKicked.builder()
@@ -61,6 +68,7 @@ class InMemorySessionsPartyNotifierService : PartyNotifierService {
         )
     }
 
+    @Async
     override fun notifyPartyMemberMinecraftUsernameUpdate(party: Party, member: PartyMember) {
         S2CPartyMemberStatusUpdate.builder()
             .memberId(member.id)
@@ -73,6 +81,7 @@ class InMemorySessionsPartyNotifierService : PartyNotifierService {
         }
     }
 
+    @Async
     override fun notifyPartyMemberUsernameUpdate(party: Party, member: PartyMember) {
         S2CPartyMemberStatusUpdate.builder()
             .memberId(member.id)
@@ -85,6 +94,7 @@ class InMemorySessionsPartyNotifierService : PartyNotifierService {
         }
     }
 
+    @Async
     override fun notifyPartyMemberSkinUpdate(party: Party, member: PartyMember) {
         S2CPartyMemberStatusUpdate.builder()
             .memberId(member.id)
@@ -97,6 +107,7 @@ class InMemorySessionsPartyNotifierService : PartyNotifierService {
         }
     }
 
+    @Async
     override fun notifyPartyMemberPlayDataUpdate(
         party: Party,
         member: PartyMember
