@@ -153,4 +153,18 @@ class PartyListener(
             }
         }
     }
+
+    @PacketMessageListener
+    fun partyPlayUpdate(userSession: UserSession, packet: C2SPartyPlayUpdate) {
+        val (party, member) = userSession.activeParty ?: return
+
+        try {
+            partyService.memberPlayDataUpdate(party, member, packet.data)
+        } catch (ex: RuntimeException) {
+            when (ex) {
+                is MemberInAnotherPartyException -> {}
+                else -> throw ex
+            }
+        }
+    }
 }

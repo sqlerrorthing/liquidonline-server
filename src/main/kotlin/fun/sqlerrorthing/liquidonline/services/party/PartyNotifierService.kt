@@ -76,4 +76,9 @@ interface PartyNotifierService {
         party: Party,
         member: PartyMember
     )
+
+    fun notifyPartyMemberPlayDataUpdate(
+        party: Party,
+        member: PartyMember
+    )
 }

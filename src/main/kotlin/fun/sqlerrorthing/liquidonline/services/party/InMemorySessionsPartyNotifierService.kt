@@ -96,4 +96,19 @@ class InMemorySessionsPartyNotifierService : PartyNotifierService {
             }
         }
     }
+
+    override fun notifyPartyMemberPlayDataUpdate(
+        party: Party,
+        member: PartyMember
+    ) {
+        S2CPartyMemberPlayUpdate.builder()
+            .memberId(member.id)
+            .data(member.playData)
+            .build()
+        .apply {
+            party.sendPacketToMembers { partyMember ->
+                takeIf { member != partyMember }
+            }
+        }
+    }
 }

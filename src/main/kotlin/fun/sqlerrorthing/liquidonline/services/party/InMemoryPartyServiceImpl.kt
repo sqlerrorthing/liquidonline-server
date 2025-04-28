@@ -223,6 +223,19 @@ class InMemoryPartyServiceImpl(
         logger.info("User '{}' left party '{}'", member.userSession.user.username, party.name)
     }
 
+    override fun memberPlayDataUpdate(
+        party: Party,
+        member: PartyMember,
+        playData: PlayDto?
+    ) {
+        require(party.isInParty(member)) {
+            MemberInAnotherPartyException
+        }
+
+        member.playData = playData
+        partyNotifierService.notifyPartyMemberPlayDataUpdate(party, member)
+    }
+
     override fun sessionDisconnected(session: UserSession) {
         parties.mapNotNull { party ->
             party.invitedMembers

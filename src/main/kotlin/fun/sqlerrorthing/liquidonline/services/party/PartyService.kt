@@ -81,6 +81,12 @@ interface PartyService {
         newOwner: PartyMember
     )
 
+    fun memberPlayDataUpdate(
+        party: Party,
+        member: PartyMember,
+        playData: PlayDto?
+    )
+
     @Throws(
         MemberInAnotherPartyException::class
     )
