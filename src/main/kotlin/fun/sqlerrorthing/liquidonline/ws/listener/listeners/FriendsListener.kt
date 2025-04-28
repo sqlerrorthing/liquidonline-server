@@ -26,7 +26,7 @@ class FriendsListener(
 ) {
     @PacketMessageListener
     @Suppress("ReturnCount", "unused")
-    private fun sendFriendRequest(userSession: UserSession, packet: C2SSendFriendRequest): S2CFriendRequestResult {
+    fun sendFriendRequest(userSession: UserSession, packet: C2SSendFriendRequest): S2CFriendRequestResult {
         return try {
             val request = friendshipRequestService.sendFriendRequest(
                 userSession.user,
@@ -67,7 +67,7 @@ class FriendsListener(
 
     @PacketMessageListener
     @Suppress("ReturnCount", "unused")
-    private fun removeFriend(userSession: UserSession, packet: C2SStopBeingFriends): S2CStopBeingFriendsResult {
+    fun removeFriend(userSession: UserSession, packet: C2SStopBeingFriends): S2CStopBeingFriendsResult {
         return try {
             friendshipService.brokeFriendship(userSession, packet.friendId)
 
@@ -91,7 +91,7 @@ class FriendsListener(
 
     @PacketMessageListener
     @Suppress("unused")
-    private fun respondFriendRequest(userSession: UserSession, packet: C2SRespondFriendRequest): Packet {
+    fun respondFriendRequest(userSession: UserSession, packet: C2SRespondFriendRequest): Packet {
         return try {
             when (packet.status) {
                 C2SRespondFriendRequest.Status.ACCEPTED -> {

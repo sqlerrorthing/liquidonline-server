@@ -21,7 +21,7 @@ class PartyListener(
     private val partyService: PartyService
 ) {
     @PacketMessageListener
-    private fun createParty(userSession: UserSession, packet: C2SCreateParty): S2CCreatePartyResult {
+    fun createParty(userSession: UserSession, packet: C2SCreateParty): S2CCreatePartyResult {
         return try {
             val party = partyService.createParty(packet.name, userSession, packet.playData)
 
@@ -37,13 +37,13 @@ class PartyListener(
     }
 
     @PacketMessageListener
-    private fun leaveParty(userSession: UserSession, packet: C2SPartyLeave) {
+    fun leaveParty(userSession: UserSession, packet: C2SPartyLeave) {
         val (party, member) = userSession.activeParty ?: return
         partyService.removePartyMember(party, member)
     }
 
     @PacketMessageListener
-    private fun disbandParty(userSession: UserSession, packet: C2SPartyDisband) {
+    fun disbandParty(userSession: UserSession, packet: C2SPartyDisband) {
         val (party, member) = userSession.activeParty ?: return
 
         try {
@@ -52,7 +52,7 @@ class PartyListener(
     }
 
     @PacketMessageListener
-    private fun invitePartyMember(userSession: UserSession, packet: C2SInvitePartyMember): S2CInvitePartyMemberResult {
+    fun invitePartyMember(userSession: UserSession, packet: C2SInvitePartyMember): S2CInvitePartyMemberResult {
         val (party, member) = userSession.activeParty ?: return S2CInvitePartyMemberResult.builder()
             .result(S2CInvitePartyMemberResult.Result.NOT_IN_A_PARTY)
             .build()
@@ -80,7 +80,7 @@ class PartyListener(
     }
 
     @PacketMessageListener
-    private fun inviteResponse(userSession: UserSession, packet: C2SPartyInviteResponse): S2CPartyInviteResponseStatus {
+    fun inviteResponse(userSession: UserSession, packet: C2SPartyInviteResponse): S2CPartyInviteResponseStatus {
         return try {
             when (packet.response) {
                 C2SPartyInviteResponse.Response.ACCEPTED -> {
@@ -115,7 +115,7 @@ class PartyListener(
     }
 
     @PacketMessageListener
-    private fun kickPartyMember(userSession: UserSession, packet: C2SKickPartyMember): S2CPartyMemberKickResult {
+    fun kickPartyMember(userSession: UserSession, packet: C2SKickPartyMember): S2CPartyMemberKickResult {
         return try {
             val (party, member) = requireNotNull(userSession.activeParty) {
                 PartyMemberNotFoundException
@@ -140,7 +140,7 @@ class PartyListener(
     }
 
     @PacketMessageListener
-    private fun transferOwnership(userSession: UserSession, packet: C2STransferPartyOwnership) {
+    fun transferOwnership(userSession: UserSession, packet: C2STransferPartyOwnership) {
         val (party, member) = userSession.activeParty ?: return
 
         try {
@@ -160,11 +160,6 @@ class PartyListener(
 
         try {
             partyService.memberPlayDataUpdate(party, member, packet.data)
-        } catch (ex: RuntimeException) {
-            when (ex) {
-                is MemberInAnotherPartyException -> {}
-                else -> throw ex
-            }
-        }
+        } catch (_: MemberInAnotherPartyException) {}
     }
 }
