@@ -1,6 +1,7 @@
 package `fun`.sqlerrorthing.liquidonline.services.party
 
 import `fun`.sqlerrorthing.liquidonline.dto.party.PartyDto
+import `fun`.sqlerrorthing.liquidonline.dto.play.MarkerDto
 import `fun`.sqlerrorthing.liquidonline.dto.play.PlayDto
 import `fun`.sqlerrorthing.liquidonline.exceptions.*
 import `fun`.sqlerrorthing.liquidonline.extensions.*
@@ -11,6 +12,7 @@ import `fun`.sqlerrorthing.liquidonline.session.InvitedMember
 import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
+import `fun`.sqlerrorthing.liquidonline.utils.Colors
 import `fun`.sqlerrorthing.liquidonline.utils.require
 import `fun`.sqlerrorthing.liquidonline.utils.requireNotNull
 import org.slf4j.Logger
@@ -25,7 +27,9 @@ class InMemoryPartyServiceImpl(
     private val partyNotifierService: PartyNotifierService,
     private val sessionStorageService: SessionStorageService,
     private val friendshipService: FriendshipService,
-    private val partyInviteNotifierService: PartyInviteNotifierService
+    private val partyInviteNotifierService: PartyInviteNotifierService,
+    private val colors: Colors,
+    private val partyMarkerService: PartyMarkerService
 ) : PartyService {
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
     private val parties: MutableList<Party> = CopyOnWriteArrayList()
@@ -44,6 +48,7 @@ class InMemoryPartyServiceImpl(
         val party = Party.builder()
             .uuid(UUID.randomUUID())
             .name(name)
+            .maxMembers(colors.size)
             .owner(member)
             .build()
         .apply {
@@ -54,6 +59,18 @@ class InMemoryPartyServiceImpl(
 
         logger.info("Party created: name='{}', owner='{}'", name, member.userSession.user.username)
         return party
+    }
+
+    override fun partyMarker(
+        party: Party,
+        member: PartyMember,
+        marker: MarkerDto
+    ) {
+        require(party.isInParty(member)) {
+            MemberInAnotherPartyException
+        }
+
+        partyMarkerService.addMarker(party, member, marker)
     }
 
     override fun joinPartyMember(

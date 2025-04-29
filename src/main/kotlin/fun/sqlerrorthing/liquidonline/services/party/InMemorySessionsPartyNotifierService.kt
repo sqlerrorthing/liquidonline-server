@@ -1,5 +1,6 @@
 package `fun`.sqlerrorthing.liquidonline.services.party
 
+import `fun`.sqlerrorthing.liquidonline.dto.play.MarkerDto
 import `fun`.sqlerrorthing.liquidonline.extensions.*
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.*
 import `fun`.sqlerrorthing.liquidonline.session.Party
@@ -121,5 +122,19 @@ class InMemorySessionsPartyNotifierService : PartyNotifierService {
                 takeIf { member != partyMember }
             }
         }
+    }
+
+    @Async
+    override fun notifyNewMarker(
+        party: Party,
+        member: PartyMember,
+        marker: MarkerDto
+    ) {
+        party.sendPacketToMembers(
+            S2CPartyNewMarker.builder()
+                .memberId(member.id)
+                .marker(marker)
+                .build()
+        )
     }
 }

@@ -1,6 +1,5 @@
 package fun.sqlerrorthing.liquidonline.session;
 
-import fun.sqlerrorthing.liquidonline.SharedConstants;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
@@ -24,8 +23,7 @@ public class Party {
     @Builder.Default
     boolean isPublic = false;
 
-    @Builder.Default
-    int maxMembers = SharedConstants.MAX_PARTY_MEMBERS_LIMIT;
+    int maxMembers;
 
     @NotNull
     PartyMember owner;

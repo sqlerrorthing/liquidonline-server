@@ -35,3 +35,7 @@ object PartyMemberNotFoundException: RuntimeException() {
 object PartyMembersLimitException: RuntimeException() {
     private fun readResolve(): Any = PartyMembersLimitException
 }
+
+object PartyMemberInMarkersRateLimitException: RuntimeException() {
+    private fun readResolve(): Any = PartyMemberInMarkersRateLimitException
+}

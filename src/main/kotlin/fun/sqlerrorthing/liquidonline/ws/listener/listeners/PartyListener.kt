@@ -4,10 +4,7 @@ import `fun`.sqlerrorthing.liquidonline.exceptions.*
 import `fun`.sqlerrorthing.liquidonline.extensions.toInvitedMemberDto
 import `fun`.sqlerrorthing.liquidonline.extensions.toPartyDto
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.party.*
-import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CCreatePartyResult
-import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CInvitePartyMemberResult
-import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartyInviteResponseStatus
-import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartyMemberKickResult
+import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.*
 import `fun`.sqlerrorthing.liquidonline.services.party.PartyService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import `fun`.sqlerrorthing.liquidonline.ws.listener.PacketMessageListener
@@ -161,5 +158,31 @@ class PartyListener(
         try {
             partyService.memberPlayDataUpdate(party, member, packet.data)
         } catch (_: MemberInAnotherPartyException) {}
+    }
+
+    @PacketMessageListener
+    fun partySetMarkerRequest(userSession: UserSession, packet: C2SPartySetMarker): S2CPartySetMarkerResult {
+        return try {
+            val (party, member) = requireNotNull(userSession.activeParty) {
+                PartyMemberNotFoundException
+            }
+
+            partyService.partyMarker(party, member, packet.marker)
+
+            S2CPartySetMarkerResult.builder()
+                .result(S2CPartySetMarkerResult.Result.INSTALLED)
+                .build()
+        } catch (ex: Exception) {
+            when (ex) {
+                is PartyMemberNotFoundException,
+                is MemberInAnotherPartyException -> S2CPartySetMarkerResult.Result.NOT_IN_A_PARTY
+                is PartyMemberInMarkersRateLimitException -> S2CPartySetMarkerResult.Result.LIMIT
+                else -> throw ex
+            }.let { result ->
+                S2CPartySetMarkerResult.builder()
+                    .result(result)
+                    .build()
+            }
+        }
     }
 }

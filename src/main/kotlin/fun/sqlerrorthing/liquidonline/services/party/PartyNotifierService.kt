@@ -1,5 +1,6 @@
 package `fun`.sqlerrorthing.liquidonline.services.party
 
+import `fun`.sqlerrorthing.liquidonline.dto.play.MarkerDto
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartyKicked
 import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
@@ -80,5 +81,11 @@ interface PartyNotifierService {
     fun notifyPartyMemberPlayDataUpdate(
         party: Party,
         member: PartyMember
+    )
+
+    fun notifyNewMarker(
+        party: Party,
+        member: PartyMember,
+        marker: MarkerDto
     )
 }

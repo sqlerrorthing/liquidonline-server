@@ -1,6 +1,7 @@
 package `fun`.sqlerrorthing.liquidonline.services.party
 
 import `fun`.sqlerrorthing.liquidonline.dto.party.PartyDto
+import `fun`.sqlerrorthing.liquidonline.dto.play.MarkerDto
 import `fun`.sqlerrorthing.liquidonline.dto.play.PlayDto
 import `fun`.sqlerrorthing.liquidonline.exceptions.*
 import `fun`.sqlerrorthing.liquidonline.session.InvitedMember
@@ -85,6 +86,16 @@ interface PartyService {
         party: Party,
         member: PartyMember,
         playData: PlayDto?
+    )
+
+    @Throws(
+        MemberInAnotherPartyException::class,
+        PartyMemberInMarkersRateLimitException::class
+    )
+    fun partyMarker(
+        party: Party,
+        member: PartyMember,
+        marker: MarkerDto
     )
 
     @Throws(

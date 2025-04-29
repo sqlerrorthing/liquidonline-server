@@ -13,6 +13,7 @@ fun Party.toPartyDto(): PartyDto {
         .id(this.uuid)
         .name(this.name)
         .partyPublic(this.isPublic)
+        .maxMembers(this.maxMembers)
         .ownerId(this.owner.userSession.user.id)
         .members(this.members.map { it.toPartyMemberDto() })
         .invitedMembers(this.invitedMembers.map { it.toInvitedMemberDto() })
