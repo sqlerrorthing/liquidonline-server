@@ -7,6 +7,7 @@ import `fun`.sqlerrorthing.liquidonline.packets.c2s.party.*
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.*
 import `fun`.sqlerrorthing.liquidonline.services.party.PartyService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
+import `fun`.sqlerrorthing.liquidonline.utils.requireNotNull
 import `fun`.sqlerrorthing.liquidonline.ws.listener.PacketMessageListener
 import `fun`.sqlerrorthing.liquidonline.ws.listener.WebSocketMessageListener
 import org.springframework.stereotype.Component
@@ -114,9 +115,10 @@ class PartyListener(
     @PacketMessageListener
     fun kickPartyMember(userSession: UserSession, packet: C2SKickPartyMember): S2CPartyMemberKickResult {
         return try {
-            val (party, member) = requireNotNull(userSession.activeParty) {
+            val (party, member) = requireNotNull(
+                userSession.activeParty,
                 PartyMemberNotFoundException
-            }
+            )
 
             partyService.kickPartyMember(party, member, packet.memberId)
 
@@ -163,9 +165,10 @@ class PartyListener(
     @PacketMessageListener
     fun partySetMarkerRequest(userSession: UserSession, packet: C2SPartySetMarker): S2CPartySetMarkerResult {
         return try {
-            val (party, member) = requireNotNull(userSession.activeParty) {
+            val (party, member) = requireNotNull(
+                userSession.activeParty,
                 PartyMemberNotFoundException
-            }
+            )
 
             partyService.partyMarker(party, member, packet.marker)
 

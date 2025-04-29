@@ -39,9 +39,10 @@ class InMemoryPartyServiceImpl(
         baseMember: UserSession,
         playData: PlayDto?,
     ): Party {
-        require(baseMember.activeParty == null) {
+        require(
+            baseMember.activeParty == null,
             AlreadyInPartyException
-        }
+        )
 
         val member = baseMember.createPartyMember(playData = playData)
 
@@ -66,9 +67,10 @@ class InMemoryPartyServiceImpl(
         member: PartyMember,
         marker: MarkerDto
     ) {
-        require(party.isInParty(member)) {
+        require(
+            party.isInParty(member),
             MemberInAnotherPartyException
-        }
+        )
 
         partyMarkerService.addMarker(party, member, marker)
     }
@@ -79,13 +81,15 @@ class InMemoryPartyServiceImpl(
         inviteUuid: UUID?,
         playData: PlayDto?
     ): PartyMember {
-        require(party.hasMembers()) {
+        require(
+            party.hasMembers(),
             PartyHasNoMembers
-        }
+        )
 
-        require(user.activeParty?.first != party) {
+        require(
+            user.activeParty?.first != party,
             AlreadyInPartyException
-        }
+        )
 
         val member = user.createPartyMember(
             colorPosition = party.members.size-1,
@@ -104,9 +108,10 @@ class InMemoryPartyServiceImpl(
         party: Party,
         requester: PartyMember
     ) {
-        require(party.owner == requester) {
+        require(
+            party.owner == requester,
             NotEnoughPartyPermissionsExceptions
-        }
+        )
 
         disbandParty(party)
     }
@@ -116,9 +121,10 @@ class InMemoryPartyServiceImpl(
         sender: PartyMember,
         receiverUsername: String
     ): InvitedMember {
-        val receiver = requireNotNull(sessionStorageService.findUserSession(receiverUsername)) {
+        val receiver = requireNotNull(
+            sessionStorageService.findUserSession(receiverUsername),
             UserNotFoundException
-        }
+        )
 
         return createInvite(party, sender, receiver)
     }
@@ -128,25 +134,30 @@ class InMemoryPartyServiceImpl(
         sender: PartyMember,
         receiver: UserSession
     ): InvitedMember {
-        require(party.isInParty(sender)) {
+        require(
+            party.isInParty(sender),
             MemberInAnotherPartyException
-        }
+        )
 
-        require(party.owner == sender || party.isPublic) {
+        require(
+            party.owner == sender || party.isPublic,
             NotEnoughPartyPermissionsExceptions
-        }
+        )
 
-        require(friendshipService.areFriends(sender.userSession.user, receiver.user)) {
+        require(
+            friendshipService.areFriends(sender.userSession.user, receiver.user),
             NotEnoughPartyPermissionsExceptions
-        }
+        )
 
-        require(!party.isInParty(receiver)) {
+        require(
+            !party.isInParty(receiver),
             AlreadyInPartyException
-        }
+        )
 
-        require(!party.isInvited(receiver)) {
+        require(
+            !party.isInvited(receiver),
             AlreadyInvitedException
-        }
+        )
 
         return InvitedMember.builder()
             .invited(receiver)
@@ -182,13 +193,15 @@ class InMemoryPartyServiceImpl(
         requester: PartyMember,
         memberId: Int
     ) {
-        require(party.owner == requester) {
+        require(
+            party.owner == requester,
             NotEnoughPartyPermissionsExceptions
-        }
+        )
 
-        val member = requireNotNull(party.findMemberById(memberId)) {
+        val member = requireNotNull(
+            party.findMemberById(memberId),
             PartyMemberNotFoundException
-        }
+        )
 
         kickPartyMember(party, member)
     }
@@ -198,13 +211,15 @@ class InMemoryPartyServiceImpl(
         requester: PartyMember,
         newOwnerId: Int
     ) {
-        require(party.owner == requester) {
+        require(
+            party.owner == requester,
             NotEnoughPartyPermissionsExceptions
-        }
+        )
 
-        val member = requireNotNull(party.findMemberById(newOwnerId)) {
+        val member = requireNotNull(
+            party.findMemberById(newOwnerId),
             PartyMemberNotFoundException
-        }
+        )
 
         transferPartyOwnership(party, member)
     }
@@ -213,9 +228,10 @@ class InMemoryPartyServiceImpl(
         party: Party,
         member: PartyMember,
     ) {
-        require(party.isInParty(member)) {
+        require(
+            party.isInParty(member),
             MemberInAnotherPartyException
-        }
+        )
 
         val wasOwner = party.owner == member
 
@@ -245,9 +261,10 @@ class InMemoryPartyServiceImpl(
         member: PartyMember,
         playData: PlayDto?
     ) {
-        require(party.isInParty(member)) {
+        require(
+            party.isInParty(member),
             MemberInAnotherPartyException
-        }
+        )
 
         member.playData = playData
         partyNotifierService.notifyPartyMemberPlayDataUpdate(party, member)
@@ -275,9 +292,10 @@ class InMemoryPartyServiceImpl(
         if (requester == invite.sender || requester == party.owner) {
             partyInviteNotifierService.notifyReceiverInviteRevoked(invite)
         } else {
-            require(requester == invite.invited) {
+            require(
+                requester == invite.invited,
                 InviteNotFoundException
-            }
+            )
         }
 
         party.invitedMembers.remove(invite)
@@ -285,8 +303,10 @@ class InMemoryPartyServiceImpl(
     }
 
     override fun inviteDeclined(requester: UserSession, inviteUuid: UUID) {
-        val (party, invite) = parties.findPartyByInviteUuid(inviteUuid)
-            ?: throw InviteNotFoundException
+        val (party, invite) = requireNotNull(
+            parties.findPartyByInviteUuid(inviteUuid),
+            InviteNotFoundException
+        )
 
         inviteDeclined(party, requester, invite)
     }
@@ -296,8 +316,10 @@ class InMemoryPartyServiceImpl(
         requester: UserSession,
         playData: PlayDto?
     ): PartyDto {
-        val (party, invite) = parties.findPartyByInviteUuid(inviteUuid)
-            ?: throw InviteNotFoundException
+        val (party, invite) = requireNotNull(
+            parties.findPartyByInviteUuid(inviteUuid),
+            InviteNotFoundException
+        )
 
         inviteAccepted(party, requester, invite, playData)
         return party.toPartyDto()
@@ -309,20 +331,25 @@ class InMemoryPartyServiceImpl(
         invite: InvitedMember,
         playData: PlayDto?
     ) {
-        require(requester == invite.invited) {
+        require(
+            requester == invite.invited,
             InviteNotFoundException
-        }
+        )
 
-        require(requester.activeParty == null) {
+        require(
+            requester.activeParty == null,
             MemberInAnotherPartyException
-        }
+        )
 
-        require(party.isNextPartyMemberSlotFree) {
-            party.invitedMembers.remove(invite)
-            partyInviteNotifierService.notifyInviteDeclined(party, invite)
+        require(
+            party.isNextPartyMemberSlotFree,
+            {
+                party.invitedMembers.remove(invite)
+                partyInviteNotifierService.notifyInviteDeclined(party, invite)
 
-            PartyMembersLimitException
-        }
+                PartyMembersLimitException
+            }()
+        )
 
         party.invitedMembers.remove(invite)
 

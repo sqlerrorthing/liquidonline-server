@@ -4,21 +4,21 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 @OptIn(ExperimentalContracts::class)
-inline fun require(value: Boolean, lazyError: () -> Throwable) {
+fun require(value: Boolean, error: Throwable) {
     contract {
         returns() implies value
     }
 
     if (!value) {
-        throw lazyError()
+        throw error
     }
 }
 
 @OptIn(ExperimentalContracts::class)
-inline fun <T : Any> requireNotNull(value: T?, lazyError: () -> Throwable): T {
+fun <T : Any> requireNotNull(value: T?, error: Throwable): T {
     contract {
         returns() implies (value != null)
     }
 
-    return value ?: throw lazyError()
+    return value ?: throw error
 }
