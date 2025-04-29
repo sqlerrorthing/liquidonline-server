@@ -24,7 +24,7 @@ class InMemoryPartyMarkerServiceImpl(
         val markers = memberMarkers.computeIfAbsent(member.id) { MemberMarkers() }
         val (lastTime, count) = markers
 
-        if (System.currentTimeMillis() - lastTime > 1000) {
+        if (currentTime - lastTime > 1000) {
             markers.markerCount = 0
         }
 
