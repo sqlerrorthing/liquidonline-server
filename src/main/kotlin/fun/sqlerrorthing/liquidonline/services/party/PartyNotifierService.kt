@@ -6,6 +6,7 @@ import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
 import java.util.*
 
+@Suppress("TooManyFunctions")
 interface PartyNotifierService {
     /**
      * Уведомляет всех участников пати

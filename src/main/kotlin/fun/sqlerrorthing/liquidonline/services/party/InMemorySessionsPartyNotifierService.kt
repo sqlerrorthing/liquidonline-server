@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
+@Suppress("TooManyFunctions")
 class InMemorySessionsPartyNotifierService : PartyNotifierService {
     @Async
     override fun notifyPartyMemberJoined(party: Party, inviteUuid: UUID?, joinedMember: PartyMember) {

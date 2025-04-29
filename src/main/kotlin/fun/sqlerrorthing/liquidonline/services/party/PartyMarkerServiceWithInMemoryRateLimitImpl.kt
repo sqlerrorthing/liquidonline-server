@@ -9,11 +9,10 @@ import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
 
 @Service
-class InMemoryPartyMarkerServiceImpl(
+class PartyMarkerServiceWithInMemoryRateLimitImpl(
     private val partyNotifierService: PartyNotifierService
 ) : PartyMarkerService {
     private val memberMarkers = ConcurrentHashMap<Int, MemberMarkers>()
-
 
     override fun addMarker(
         party: Party,
