@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @WebSocketMessageListener
+@Suppress("unused")
 class MinecraftDataUpdateListener(
     private val minecraftUsernameService: MinecraftUsernameService,
     private val minecraftServerService: MinecraftServerService,

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @WebSocketMessageListener
+@Suppress("unused")
 class FriendsListener(
     private val friendshipService: FriendshipService,
     private val friendshipRequestService: FriendshipRequestService,
@@ -37,22 +38,6 @@ class FriendsListener(
                 .status(S2CFriendRequestResult.Status.REQUESTED)
                 .requestId(request.id)
                 .build()
-        } catch (_: FriendRequestToSelfException) {
-            S2CFriendRequestResult.builder()
-                .status(S2CFriendRequestResult.Status.SENT_TO_SELF)
-                .build()
-        } catch (_: UserNotFoundException) {
-            S2CFriendRequestResult.builder()
-                .status(S2CFriendRequestResult.Status.NOT_FOUND)
-                .build()
-        } catch (_: AlreadyFriendsException) {
-            S2CFriendRequestResult.builder()
-                .status(S2CFriendRequestResult.Status.ALREADY_FRIENDS)
-                .build()
-        } catch (_: AlreadyRequestedException) {
-            S2CFriendRequestResult.builder()
-                .status(S2CFriendRequestResult.Status.ALREADY_REQUESTED)
-                .build()
         } catch (e: ReverseFriendRequestExistsException) {
             e.reverseRequest.let { request ->
                 friendshipRequestService.acceptFriendRequest(request)
@@ -60,6 +45,18 @@ class FriendsListener(
                 S2CFriendRequestResult.builder()
                     .requestId(request.id)
                     .status(S2CFriendRequestResult.Status.ACCEPTED)
+                    .build()
+            }
+        } catch (ex: RuntimeException) {
+            when (ex) {
+                is FriendRequestToSelfException -> S2CFriendRequestResult.Status.SENT_TO_SELF
+                is UserNotFoundException -> S2CFriendRequestResult.Status.NOT_FOUND
+                is AlreadyFriendsException -> S2CFriendRequestResult.Status.ALREADY_FRIENDS
+                is AlreadyRequestedException -> S2CFriendRequestResult.Status.ALREADY_REQUESTED
+                else -> throw ex
+            }.let { status ->
+                S2CFriendRequestResult.builder()
+                    .status(status)
                     .build()
             }
         }
