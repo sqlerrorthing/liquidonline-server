@@ -20,7 +20,6 @@ import java.time.Instant;
 public class UserEntity implements Principal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull
     Integer id;
 
     @Column(unique = true, nullable = false)

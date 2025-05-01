@@ -4,3 +4,14 @@ spring:
 
   profiles:
     active: local
+
+  mvc:
+    view:
+      prefix: none
+      suffix: none
+
+server:
+  error:
+    whitelabel:
+      enabled: false
+    include-message: always
