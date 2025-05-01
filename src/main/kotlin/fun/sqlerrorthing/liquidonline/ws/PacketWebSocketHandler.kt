@@ -18,7 +18,7 @@ abstract class PacketWebSocketHandler(
 ) : TextWebSocketHandler() {
     override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
         runCatching {
-            val deserialized = packetSerializationStrategy.serializePacketFromString(message.payload)
+            val deserialized = packetSerializationStrategy.deserializePacketFromString(message.payload)
 
             try {
                 validatePacket(deserialized)
