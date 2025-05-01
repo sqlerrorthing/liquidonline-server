@@ -11,9 +11,9 @@ private val packetSerializationStrategy by lazy {
 }
 
 fun WebSocketSession.sendPacket(message: Packet) {
-    this.sendMessage(TextMessage(message.deserialize()))
+    this.sendMessage(TextMessage(message.serialize()))
 }
 
-fun Packet.deserialize(): String {
-    return packetSerializationStrategy.deserializePacketToString(this)
+fun Packet.serialize(): String {
+    return packetSerializationStrategy.serializePacketToString(this)
 }
