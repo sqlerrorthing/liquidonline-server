@@ -1,4 +1,4 @@
-package `fun`.sqlerrorthing.liquidonline.rest.controllers
+package `fun`.sqlerrorthing.liquidonline.rest
 
 import `fun`.sqlerrorthing.liquidonline.dtos.ExceptionDto
 import org.slf4j.LoggerFactory
