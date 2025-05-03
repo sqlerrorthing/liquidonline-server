@@ -10,6 +10,11 @@ spring:
       prefix: none
       suffix: none
 
+  threads:
+    virtual:
+      enabled: true
+
+
 server:
   error:
     whitelabel:
