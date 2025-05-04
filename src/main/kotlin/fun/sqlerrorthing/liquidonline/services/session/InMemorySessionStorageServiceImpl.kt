@@ -7,7 +7,7 @@ import `fun`.sqlerrorthing.liquidonline.services.friendship.FriendNotifierServic
 import `fun`.sqlerrorthing.liquidonline.services.party.PartyService
 import `fun`.sqlerrorthing.liquidonline.services.user.UserService
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
-import `fun`.sqlerrorthing.liquidonline.ws.listener.PacketListenerRegistrar
+import `fun`.sqlerrorthing.liquidonline.ws.listener.PacketListenersHolder
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import org.springframework.web.socket.WebSocketSession
@@ -18,12 +18,13 @@ import java.util.concurrent.CopyOnWriteArraySet
 @Service
 class InMemorySessionStorageServiceImpl(
     private val userService: UserService,
-    private val packetListenerRegistrar: PacketListenerRegistrar,
+    private val packetListenersHolder: PacketListenersHolder,
     @Lazy
     private val sessionTaskService: SessionTaskService,
     private val friendNotifierService: FriendNotifierService,
     @Lazy
-    private val partyService: PartyService
+    private val partyService: PartyService,
+    private val sessionRateLimitService: SessionRateLimitService
 ): SessionStorageService {
     private val sessions: MutableSet<WebSocketSession> = CopyOnWriteArraySet()
     private val authoredSessions: MutableList<UserSession> = CopyOnWriteArrayList()
@@ -35,7 +36,7 @@ class InMemorySessionStorageServiceImpl(
 
         authoredSessions.find { it.wsSession == session }?.let {
             if (packet !is C2SLogin) {
-                packetListenerRegistrar.dispatchPacket(
+                packetListenersHolder.dispatchPacket(
                     it, packet
                 )
             }
@@ -60,11 +61,14 @@ class InMemorySessionStorageServiceImpl(
     }
 
     override fun addSession(session: WebSocketSession) {
-        sessions.add(session)
+        if (sessionRateLimitService.sessionConnected(session)) {
+            sessions.add(session)
+        }
     }
 
     override fun removeSession(session: WebSocketSession) {
         sessions.remove(session)
+        sessionRateLimitService.sessionDisconnected(session)
 
         authoredSessions.find { it.wsSession == session }?.let { userSession ->
             authoredSessions.remove(userSession)

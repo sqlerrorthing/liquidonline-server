@@ -4,6 +4,7 @@ import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.login.C2SLogin
 import `fun`.sqlerrorthing.liquidonline.packets.strategy.PacketSerializationStrategy
 import `fun`.sqlerrorthing.liquidonline.services.auth.AuthService
+import `fun`.sqlerrorthing.liquidonline.services.session.SessionRateLimitService
 import `fun`.sqlerrorthing.liquidonline.services.session.SessionStorageService
 import jakarta.validation.Validator
 import org.springframework.stereotype.Component
@@ -14,9 +15,10 @@ import org.springframework.web.socket.WebSocketSession
 class MainWebSocketHandler(
     packetSerializationStrategy: PacketSerializationStrategy,
     validator: Validator,
+    sessionRateLimitService: SessionRateLimitService,
     private val sessionStorageService: SessionStorageService,
     private val authService: AuthService,
-) : PacketWebSocketHandler(packetSerializationStrategy, validator) {
+) : PacketWebSocketHandler(packetSerializationStrategy, validator, sessionRateLimitService) {
     override fun handlePacket(session: WebSocketSession, packet: Packet) {
         if (packet is C2SLogin) {
             authService.authenticate(session, packet)

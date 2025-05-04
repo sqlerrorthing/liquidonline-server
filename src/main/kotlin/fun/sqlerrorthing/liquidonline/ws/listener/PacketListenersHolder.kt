@@ -13,7 +13,7 @@ import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.jvm.isAccessible
 
 @Component
-class PacketListenerRegistrar(
+class PacketListenersHolder(
     private val applicationContext: ApplicationContext
 ) : SmartInitializingSingleton {
     private val listeners = mutableMapOf<KClass<out Packet>, ListenerMethod>()
