@@ -188,4 +188,14 @@ class PartyListener(
             }
         }
     }
+
+    @PacketMessageListener
+    fun partyAttackEntity(userSession: UserSession, packet: C2SPartyAttackEntity) {
+        val (party, member) = userSession.activeParty
+            ?: return
+
+        try {
+            partyService.attackEntity(party, member, packet.entityId)
+        } catch (_: MemberInAnotherPartyException) {}
+    }
 }
