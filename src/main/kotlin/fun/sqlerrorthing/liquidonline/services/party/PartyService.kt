@@ -88,6 +88,12 @@ interface PartyService {
         playData: PlayDto?
     )
 
+    fun attackEntity(
+        party: Party,
+        member: PartyMember,
+        entityId: Int
+    )
+
     @Throws(
         MemberInAnotherPartyException::class,
         PartyMemberInMarkersRateLimitException::class

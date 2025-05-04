@@ -84,6 +84,12 @@ interface PartyNotifierService {
         member: PartyMember
     )
 
+    fun notifyPartyMemberEntityAttack(
+        party: Party,
+        member: PartyMember,
+        entityId: Int
+    )
+
     fun notifyNewMarker(
         party: Party,
         member: PartyMember,

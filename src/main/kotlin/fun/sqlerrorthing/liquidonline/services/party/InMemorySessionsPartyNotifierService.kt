@@ -126,6 +126,23 @@ class InMemorySessionsPartyNotifierService : PartyNotifierService {
     }
 
     @Async
+    override fun notifyPartyMemberEntityAttack(
+        party: Party,
+        member: PartyMember,
+        entityId: Int
+    ) {
+        S2CPartyMemberEntityAttack.builder()
+            .memberId(member.id)
+            .entity(entityId)
+            .build()
+        .apply {
+            party.sendPacketToMembers { partyMember ->
+                takeIf { member != partyMember }
+            }
+        }
+    }
+
+    @Async
     override fun notifyNewMarker(
         party: Party,
         member: PartyMember,

@@ -270,6 +270,19 @@ class InMemoryPartyServiceImpl(
         partyNotifierService.notifyPartyMemberPlayDataUpdate(party, member)
     }
 
+    override fun attackEntity(
+        party: Party,
+        member: PartyMember,
+        entityId: Int
+    ) {
+        require(
+            party.isInParty(member),
+            MemberInAnotherPartyException
+        )
+
+        partyNotifierService.notifyPartyMemberEntityAttack(party, member, entityId)
+    }
+
     override fun sessionDisconnected(session: UserSession) {
         parties.mapNotNull { party ->
             party.invitedMembers
