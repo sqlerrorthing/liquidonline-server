@@ -5,6 +5,9 @@ import `fun`.sqlerrorthing.liquidonline.packets.Packet
 import `fun`.sqlerrorthing.liquidonline.session.UserSession
 import org.springframework.web.socket.WebSocketSession
 
+/**
+ * TODO: Create AuthoredSessionStorageService
+ */
 interface SessionStorageService {
     fun sessionPacket(
         session: WebSocketSession,
