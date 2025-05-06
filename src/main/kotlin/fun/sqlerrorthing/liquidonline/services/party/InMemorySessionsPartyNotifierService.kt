@@ -1,6 +1,7 @@
 package `fun`.sqlerrorthing.liquidonline.services.party
 
 import `fun`.sqlerrorthing.liquidonline.dto.play.MarkerDto
+import `fun`.sqlerrorthing.liquidonline.dtos.PartySettingsDto
 import `fun`.sqlerrorthing.liquidonline.extensions.*
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.*
 import `fun`.sqlerrorthing.liquidonline.session.Party
@@ -153,6 +154,16 @@ class InMemorySessionsPartyNotifierService : PartyNotifierService {
                 .memberId(member.id)
                 .marker(marker)
                 .build()
+        )
+    }
+
+    override fun notifyPartySettingsUpdate(
+        party: Party,
+        requester: PartyMember,
+        newSettings: PartySettingsDto
+    ) {
+        party.sendPacketToMembers(
+            S2CPartySettingsUpdated.builder()
         )
     }
 }

@@ -3,6 +3,7 @@ package `fun`.sqlerrorthing.liquidonline.services.party
 import `fun`.sqlerrorthing.liquidonline.dto.party.PartyDto
 import `fun`.sqlerrorthing.liquidonline.dto.play.MarkerDto
 import `fun`.sqlerrorthing.liquidonline.dto.play.PlayDto
+import `fun`.sqlerrorthing.liquidonline.dtos.PartySettingsDto
 import `fun`.sqlerrorthing.liquidonline.exceptions.*
 import `fun`.sqlerrorthing.liquidonline.extensions.*
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartyKicked
@@ -110,7 +111,7 @@ class InMemoryPartyServiceImpl(
     ) {
         require(
             party.owner == requester,
-            NotEnoughPartyPermissionsExceptions
+            NotEnoughPartyPermissionsException
         )
 
         disbandParty(party)
@@ -141,12 +142,12 @@ class InMemoryPartyServiceImpl(
 
         require(
             party.owner == sender || party.isPublic,
-            NotEnoughPartyPermissionsExceptions
+            NotEnoughPartyPermissionsException
         )
 
         require(
             friendshipService.areFriends(sender.userSession.user, receiver.user),
-            NotEnoughPartyPermissionsExceptions
+            NotEnoughPartyPermissionsException
         )
 
         require(
@@ -195,7 +196,7 @@ class InMemoryPartyServiceImpl(
     ) {
         require(
             party.owner == requester,
-            NotEnoughPartyPermissionsExceptions
+            NotEnoughPartyPermissionsException
         )
 
         val member = requireNotNull(
@@ -213,7 +214,7 @@ class InMemoryPartyServiceImpl(
     ) {
         require(
             party.owner == requester,
-            NotEnoughPartyPermissionsExceptions
+            NotEnoughPartyPermissionsException
         )
 
         val member = requireNotNull(
@@ -295,6 +296,23 @@ class InMemoryPartyServiceImpl(
         session.activeParty?.let { (party, member) ->
             removePartyMember(party, member)
         }
+    }
+
+    override fun settingsUpdate(
+        party: Party,
+        member: PartyMember,
+        newSettings: PartySettingsDto
+    ) {
+        val old = party.toPartySettingsDto()
+        if (newSettings == old) {
+            return
+        }
+
+        require(party.owner == member, NotEnoughPartyPermissionsException)
+
+        newSettings.applyToParty(party)
+
+        partyNotifierService.notifyPartySettingsUpdate(party, member, newSettings)
     }
 
     override fun inviteDeclined(

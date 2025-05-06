@@ -3,6 +3,7 @@ package `fun`.sqlerrorthing.liquidonline.services.party
 import `fun`.sqlerrorthing.liquidonline.dto.party.PartyDto
 import `fun`.sqlerrorthing.liquidonline.dto.play.MarkerDto
 import `fun`.sqlerrorthing.liquidonline.dto.play.PlayDto
+import `fun`.sqlerrorthing.liquidonline.dtos.PartySettingsDto
 import `fun`.sqlerrorthing.liquidonline.exceptions.*
 import `fun`.sqlerrorthing.liquidonline.session.InvitedMember
 import `fun`.sqlerrorthing.liquidonline.session.Party
@@ -32,7 +33,7 @@ interface PartyService {
     ): PartyMember
 
     @Throws(
-        NotEnoughPartyPermissionsExceptions::class
+        NotEnoughPartyPermissionsException::class
     )
     fun disbandPartyRequested(
         party: Party,
@@ -41,7 +42,7 @@ interface PartyService {
 
     @Throws(
         UserNotFoundException::class,
-        NotEnoughPartyPermissionsExceptions::class,
+        NotEnoughPartyPermissionsException::class,
         MemberInAnotherPartyException::class
     )
     fun createInvite(
@@ -138,5 +139,11 @@ interface PartyService {
 
     fun sessionDisconnected(
         session: UserSession
+    )
+
+    fun settingsUpdate(
+        party: Party,
+        member: PartyMember,
+        settings: PartySettingsDto
     )
 }
