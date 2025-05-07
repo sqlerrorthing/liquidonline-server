@@ -163,7 +163,7 @@ class InMemorySessionsPartyNotifierService : PartyNotifierService {
         newSettings: PartySettingsDto
     ) {
         party.sendPacketToMembers(
-            S2CPartySettingsUpdated.builder()
+            newSettings.toUpdatedSettingsPacket()
         )
     }
 }
