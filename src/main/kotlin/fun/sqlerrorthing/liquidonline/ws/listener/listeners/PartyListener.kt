@@ -3,6 +3,7 @@ package `fun`.sqlerrorthing.liquidonline.ws.listener.listeners
 import `fun`.sqlerrorthing.liquidonline.exceptions.*
 import `fun`.sqlerrorthing.liquidonline.extensions.toInvitedMemberDto
 import `fun`.sqlerrorthing.liquidonline.extensions.toPartyDto
+import `fun`.sqlerrorthing.liquidonline.extensions.toPartySettingsDto
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.party.*
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.*
 import `fun`.sqlerrorthing.liquidonline.services.party.PartyService
@@ -46,7 +47,7 @@ class PartyListener(
 
         try {
             partyService.disbandPartyRequested(party, member)
-        } catch (_: NotEnoughPartyPermissionsExceptions) {}
+        } catch (_: NotEnoughPartyPermissionsException) {}
     }
 
     @PacketMessageListener
@@ -65,7 +66,7 @@ class PartyListener(
         } catch (ex: RuntimeException) {
             when (ex) {
                 is UserNotFoundException -> S2CInvitePartyMemberResult.Result.NOT_FOUND
-                is NotEnoughPartyPermissionsExceptions -> S2CInvitePartyMemberResult.Result.NOT_ENOUGH_RIGHTS
+                is NotEnoughPartyPermissionsException -> S2CInvitePartyMemberResult.Result.NOT_ENOUGH_RIGHTS
                 is AlreadyInPartyException,
                 is AlreadyInvitedException -> S2CInvitePartyMemberResult.Result.ALREADY_IN_A_PARTY
                 else -> throw ex
@@ -127,7 +128,7 @@ class PartyListener(
                 .build()
         } catch (ex: RuntimeException) {
             when (ex) {
-                is NotEnoughPartyPermissionsExceptions -> S2CPartyMemberKickResult.Result.NO_ENOUGH_RIGHTS
+                is NotEnoughPartyPermissionsException -> S2CPartyMemberKickResult.Result.NO_ENOUGH_RIGHTS
                 is PartyMemberNotFoundException -> S2CPartyMemberKickResult.Result.NOT_FOUND
                 else -> throw ex
             }.let { result ->
@@ -146,7 +147,7 @@ class PartyListener(
             partyService.transferPartyOwnership(party, member, packet.memberId)
         } catch (ex: RuntimeException) {
             when (ex) {
-                is NotEnoughPartyPermissionsExceptions,
+                is NotEnoughPartyPermissionsException,
                 is PartyMemberNotFoundException -> {}
                 else -> throw ex
             }
@@ -197,5 +198,15 @@ class PartyListener(
         try {
             partyService.attackEntity(party, member, packet.entityId)
         } catch (_: MemberInAnotherPartyException) {}
+    }
+
+    @PacketMessageListener
+    fun partySettingsUpdate(userSession: UserSession, packet: C2SPartyUpdateSettings) {
+        val (party, member) = userSession.activeParty
+            ?: return
+
+        try {
+            partyService.settingsUpdate(party, member, packet.toPartySettingsDto())
+        } catch (_: NotEnoughPartyPermissionsException) {}
     }
 }
