@@ -2,7 +2,10 @@
 package `fun`.sqlerrorthing.liquidonline.extensions
 
 import `fun`.sqlerrorthing.liquidonline.dto.party.PartyDto
+import `fun`.sqlerrorthing.liquidonline.dtos.PartySettingsDto
 import `fun`.sqlerrorthing.liquidonline.packets.Packet
+import `fun`.sqlerrorthing.liquidonline.packets.c2s.party.C2SPartyUpdateSettings
+import `fun`.sqlerrorthing.liquidonline.packets.s2c.party.S2CPartySettingsUpdated
 import `fun`.sqlerrorthing.liquidonline.session.InvitedMember
 import `fun`.sqlerrorthing.liquidonline.session.Party
 import `fun`.sqlerrorthing.liquidonline.session.PartyMember
@@ -33,6 +36,28 @@ fun Party.sendPacketToMembers(packet: Packet?) {
     packet?.let {
         sendPacketToMembers { packet }
     }
+}
+
+fun C2SPartyUpdateSettings.toPartySettingsDto(): PartySettingsDto {
+    return PartySettingsDto.builder()
+        .partyPublic(this.isPartyPublic)
+        .build()
+}
+
+fun Party.toPartySettingsDto(): PartySettingsDto {
+    return PartySettingsDto.builder()
+        .partyPublic(this.isPublic)
+        .build()
+}
+
+fun PartySettingsDto.applyToParty(party: Party) {
+    party.isPublic = this.isPartyPublic
+}
+
+fun PartySettingsDto.toUpdatedSettingsPacket(): S2CPartySettingsUpdated {
+    return S2CPartySettingsUpdated.builder()
+        .partyPublic(this.isPartyPublic)
+        .build()
 }
 
 fun Party.isInParty(member: PartyMember): Boolean {
