@@ -1,12 +1,11 @@
 package `fun`.sqlerrorthing.liquidonline.ws
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import `fun`.sqlerrorthing.liquidonline.extensions.sendMessage
+import `fun`.sqlerrorthing.liquidonline.extensions.sendPacket
 import `fun`.sqlerrorthing.liquidonline.packets.Packet
-import `fun`.sqlerrorthing.liquidonline.packets.Packets
 import `fun`.sqlerrorthing.liquidonline.packets.c2s.login.C2SLogin
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.login.S2CDisconnected
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.login.S2CValidationFailure
+import `fun`.sqlerrorthing.liquidonline.packets.strategy.PacketSerializationStrategy
 import jakarta.validation.ConstraintViolationException
 import jakarta.validation.Validator
 import org.springframework.web.socket.TextMessage
@@ -14,17 +13,17 @@ import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.TextWebSocketHandler
 
 abstract class PacketWebSocketHandler(
-    private val objectMapper: ObjectMapper,
+    private val packetSerializationStrategy: PacketSerializationStrategy,
     private val validator: Validator
 ) : TextWebSocketHandler() {
     override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
         runCatching {
-            val deserialized = deserializePacket(message.payload)
+            val deserialized = packetSerializationStrategy.deserializePacketFromString(message.payload)
 
             try {
                 validatePacket(deserialized)
             } catch (e: ConstraintViolationException) {
-                session.sendMessage(
+                session.sendPacket(
                     S2CValidationFailure
                         .builder()
                         .details(
@@ -40,7 +39,7 @@ abstract class PacketWebSocketHandler(
                 )
 
                 if (deserialized is C2SLogin) {
-                    session.sendMessage(
+                    session.sendPacket(
                         S2CDisconnected
                             .builder()
                             .reason(S2CDisconnected.Reason.INVALID_INITIAL_PLAYER_DATA)
@@ -56,15 +55,6 @@ abstract class PacketWebSocketHandler(
         }.onFailure {
             it.printStackTrace()
         }
-    }
-
-    private fun deserializePacket(payload: String): Packet {
-        val root = objectMapper.readTree(payload)
-
-        val id = root["id"].asInt().toByte()
-        val packetClass: Class<out Packet> = Packets.PACKETS_WITH_ID[id] ?: throw IllegalArgumentException("Unknown packet id")
-
-        return objectMapper.treeToValue(root["payload"], packetClass)
     }
 
     private fun validatePacket(packet: Packet) {

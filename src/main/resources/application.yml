@@ -1,13 +1,22 @@
 spring:
   application:
     name: liquidonline-server
-  datasource:
-    url: jdbc:postgresql://localhost:5432/main
-    username: root
-    password: root
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: update
-    show-sql: true
+
+  profiles:
+    active: local
+
+  mvc:
+    view:
+      prefix: none
+      suffix: none
+
+  threads:
+    virtual:
+      enabled: true
+
+
+server:
+  error:
+    whitelabel:
+      enabled: false
+    include-message: always

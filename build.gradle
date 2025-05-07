@@ -1,12 +1,18 @@
+import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.9.25'
-    id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25'
+    id 'org.jetbrains.kotlin.jvm' version '2.0.21'
+    id 'org.jetbrains.kotlin.plugin.spring' version '2.0.21'
     id 'org.springframework.boot' version '3.4.5'
     id 'io.spring.dependency-management' version '1.1.7'
-    id 'org.jetbrains.kotlin.plugin.jpa' version '1.9.25'
+    id 'org.jetbrains.kotlin.plugin.jpa' version '2.0.21'
 
-    id 'org.jetbrains.kotlin.plugin.lombok' version '2.1.20'
+    id 'org.jetbrains.kotlin.plugin.lombok' version '2.0.21'
     id 'io.freefair.lombok' version "8.13.1"
+
+    id 'org.graalvm.buildtools.native' version "0.10.6"
+
+    id 'io.gitlab.arturbosch.detekt' version '1.23.8'
 }
 
 group = 'fun.sqlerrorthing'
@@ -15,6 +21,17 @@ version = '0.0.1-SNAPSHOT'
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+graalvmNative {
+    binaries {
+        main {
+            imageName = "liquidonline-server"
+            buildArgs.add("-H:Name=liquidonline-server")
+            buildArgs.add("--no-fallback")
+            buildArgs.add("--enable-url-protocols=http,https")
+        }
     }
 }
 
@@ -34,18 +51,46 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.security:spring-security-crypto'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.0'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation "com.github.sqlerrorthing:liquidonline-protocol:${project.protocol_version}"
+    implementation 'io.netty:netty-buffer:4.2.0.Final'
+    implementation 'org.apache.commons:commons-lang3:3.17.0'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
     testImplementation 'org.springframework.security:spring-security-test'
+
     runtimeOnly 'org.postgresql:postgresql'
-    implementation 'org.apache.commons:commons-lang3:3.17.0'
+
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    detektPlugins 'io.gitlab.arturbosch.detekt:detekt-rules-ruleauthors:1.23.8'
+}
+
+detekt {
+    config.setFrom(file("${rootProject.projectDir}/config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
+    baseline = file("${rootProject.projectDir}/config/detekt/baseline.xml")
+}
+
+tasks.register('detektProjectBaseline', DetektCreateBaselineTask) {
+    description = "Overrides current baseline."
+    ignoreFailures.set(true)
+    parallel.set(true)
+    buildUponDefaultConfig.set(true)
+    setSource(files(rootDir))
+    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+    baseline.set(file("$rootDir/config/detekt/baseline.xml"))
+    include("**/*.kt")
+    include("**/*.kts")
+    exclude("**/resources/**")
+    exclude("**/build/**")
 }
 
 kotlin {

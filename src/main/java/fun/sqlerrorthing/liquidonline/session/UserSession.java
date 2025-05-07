@@ -1,6 +1,7 @@
 package fun.sqlerrorthing.liquidonline.session;
 
 import fun.sqlerrorthing.liquidonline.entities.UserEntity;
+import kotlin.Pair;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
@@ -31,8 +32,26 @@ public class UserSession implements Principal {
     @NotNull
     WebSocketSession wsSession;
 
+    @Nullable
+    Pair<Party, PartyMember> activeParty;
+
     @Override
     public String getName() {
         return user.getName();
+    }
+
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+
+        UserSession userSession = (UserSession) other;
+        return user.equals(userSession.user);
+    }
+
+    @Override
+    public int hashCode() {
+        return user.hashCode();
     }
 }

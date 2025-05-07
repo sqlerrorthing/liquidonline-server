@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.security.Principal;
 import java.time.Instant;
-import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -21,7 +20,6 @@ import java.util.Set;
 public class UserEntity implements Principal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull
     Integer id;
 
     @Column(unique = true, nullable = false)
@@ -48,4 +46,19 @@ public class UserEntity implements Principal {
     public String getName() {
         return username;
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+
+        UserEntity that = (UserEntity) other;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
 }
