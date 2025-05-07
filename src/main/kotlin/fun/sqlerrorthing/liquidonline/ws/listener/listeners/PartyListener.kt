@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @WebSocketMessageListener
-@Suppress("unused")
+@Suppress("unused", "TooManyFunctions")
 class PartyListener(
     private val partyService: PartyService
 ) {

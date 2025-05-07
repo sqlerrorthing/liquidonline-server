@@ -1,3 +1,4 @@
+@file:Suppress("TooManyFunctions")
 package `fun`.sqlerrorthing.liquidonline.extensions
 
 import `fun`.sqlerrorthing.liquidonline.dto.party.PartyDto
