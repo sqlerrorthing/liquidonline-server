@@ -6,6 +6,7 @@ import `fun`.sqlerrorthing.liquidonline.packets.c2s.login.C2SLogin
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.login.S2CDisconnected
 import `fun`.sqlerrorthing.liquidonline.packets.s2c.login.S2CValidationFailure
 import `fun`.sqlerrorthing.liquidonline.packets.strategy.PacketSerializationStrategy
+import `fun`.sqlerrorthing.liquidonline.services.session.SessionRateLimitService
 import jakarta.validation.ConstraintViolationException
 import jakarta.validation.Validator
 import org.springframework.web.socket.TextMessage
@@ -14,9 +15,14 @@ import org.springframework.web.socket.handler.TextWebSocketHandler
 
 abstract class PacketWebSocketHandler(
     private val packetSerializationStrategy: PacketSerializationStrategy,
-    private val validator: Validator
+    private val validator: Validator,
+    private val sessionRateLimitService: SessionRateLimitService
 ) : TextWebSocketHandler() {
     override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
+        if (!sessionRateLimitService.onPreMessage(session)) {
+            return // ignores
+        }
+
         runCatching {
             val deserialized = packetSerializationStrategy.deserializePacketFromString(message.payload)
 
